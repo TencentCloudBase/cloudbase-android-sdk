@@ -2,7 +2,7 @@ package com.tencent.tcb.utils;
 
 
 public class Config {
-    public String envName = "tcbenv-mPIgjhnq";
+    public String envName = "test-a8e99b";
     public String secretId = "";
     public String secretKey = "";
     public String sessionToken = "";

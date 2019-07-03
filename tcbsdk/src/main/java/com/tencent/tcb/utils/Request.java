@@ -12,6 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Iterator;
 
 public class Request {
@@ -21,11 +24,13 @@ public class Request {
     private static final String VERSION = "beta";
 
     public static JSONObject send(String action, JSONObject params, String method, JSONObject headers, int timeout, Config config) throws JSONException, IOException {
+        headers.put("user-agent","tcb-php-sdk/beta");
+
         // 补充必要参数
         params.put("action", action);
         params.put("envName", config.envName);
-        params.put("timestamp", "1562077122205");
-        params.put("eventId", "1562077122205_88019");
+        params.put("timestamp", "1562134915996");
+        params.put("eventId", "1562134915996_88019");
 
 
         // 处理参数
@@ -83,7 +88,55 @@ public class Request {
     }
 
     private static String getAuth(String secretId, String secretKey, String method, String pathname, JSONObject queryParams, JSONObject headers) {
-        // 使用tcb-admin-node计算出来的
-        return "q-sign-algorithm=sha1&q-ak=AKIDpGg1BBrgrsjYDgoWr384qcGj7KMEMQXU&q-sign-time=1562078160;1562079060&q-key-time=1562078160;1562079060&q-header-list=user-agent&q-url-param-list=action;eventid;path;timestamp&q-signature=8aaf31de20eeed2ad00e75e5a4008791acb021ae";
+
+//        // 签名有效起止时间
+//        long now = (new Date().getTime() / 1000) - 1;
+//        long exp = now + 900;
+//
+//        // 要用到的 Authorization 参数列表
+//        String qSignAlgorithm = "sha1";
+//        String qAk = secretId;
+//        String qSignTime = now + ";" + exp;
+//        String qKeyTime = now + ";" + exp;
+//        String qHeaderList = getObjectKeys(headers);
+//        String qUrlParamList = getObjectKeys(queryParams);
+//
+//        // 签名算法说明文档：https://www.qcloud.com/document/product/436/7778
+//        // 步骤一：计算 SignKey
+//        MessageDigest md = MessageDigest.getInstance("SHA-1");
+//        md.update(secretKey.getBytes());
+//        md.update(qKeyTime.getBytes());
+//        String signKey = bytesToHex(md.digest());
+//        // 步骤二：构成 FormatString
+
+        // 暂时构造一个月的验证码，后续再补上具体逻辑
+        return "q-sign-algorithm=sha1&q-ak=AKIDpGg1BBrgrsjYDgoWr384qcGj7KMEMQXU&q-sign-time=1562135724;1564727724&q-key-time=1562135724;1564727724&q-header-list=user-agent&q-url-param-list=action;envname;eventid;path;timestamp&q-signature=7713cd265e5a8d67de2430b570c2fc4f41331beb";
+
+
     }
+
+//    private static String getObjectKeys(JSONObject obj) {
+//        String result = "";
+//        Iterator<String> it = obj.keys();
+//        while (it.hasNext()) {
+//            String key = it.next();
+//            result += (key + ";");
+//        }
+//        if (result.length() > 0) {
+//            result = result.substring(0, result.length()-1);
+//        }
+//        return result.toLowerCase();
+//    }
+//
+//    private static String bytesToHex(byte[] bytes) {
+//        StringBuffer sb = new StringBuffer();
+//        for(int i = 0; i < bytes.length; i++) {
+//            String hex = Integer.toHexString(bytes[i] & 0xFF);
+//            if(hex.length() < 2){
+//                sb.append(0);
+//            }
+//            sb.append(hex);
+//        }
+//        return sb.toString();
+//    }
 }
