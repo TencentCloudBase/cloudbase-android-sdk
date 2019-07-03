@@ -23,7 +23,17 @@ public class Request {
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
 
-    public static JSONObject send(String action, JSONObject params, String method, JSONObject headers, int timeout, Config config) throws JSONException, IOException {
+    private Config config;
+
+    public Request(Config config) {
+        this.config = config;
+    }
+
+    public JSONObject send(String action, JSONObject params, String method) throws JSONException, IOException{
+        return send(action, params, method, new JSONObject(), 0);
+    }
+
+    public JSONObject send(String action, JSONObject params, String method, JSONObject headers, int timeout) throws JSONException, IOException {
         headers.put("user-agent","tcb-php-sdk/beta");
 
         // 补充必要参数
@@ -87,7 +97,7 @@ public class Request {
         }
     }
 
-    private static String getAuth(String secretId, String secretKey, String method, String pathname, JSONObject queryParams, JSONObject headers) {
+    private String getAuth(String secretId, String secretKey, String method, String pathname, JSONObject queryParams, JSONObject headers) {
 
 //        // 签名有效起止时间
 //        long now = (new Date().getTime() / 1000) - 1;

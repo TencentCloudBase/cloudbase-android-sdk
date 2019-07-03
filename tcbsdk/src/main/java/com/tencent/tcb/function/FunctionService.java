@@ -34,7 +34,8 @@ public class FunctionService {
             JSONObject requestParams = new JSONObject();
             requestParams.put("function_nae", name);
             requestParams.put("request_data", requestData.toString());
-            JSONObject res = Request.send(action, requestParams, "POST", new JSONObject(), 5000, config);
+            Request request = new Request(config);
+            JSONObject res = request.send(action, requestParams, "POST");
 
             // 异常情况
             if (res == null) {
