@@ -1,6 +1,8 @@
 package com.tencent.tcb.utils;
 
 
+import androidx.annotation.NonNull;
+
 import com.tencent.tcb.constants.Code;
 
 import org.json.JSONException;
@@ -22,19 +24,19 @@ public class Request {
 
     private Config config;
 
-    public Request(Config config) {
+    public Request(@NonNull Config config) {
         this.config = config;
     }
 
-    public JSONObject send(String action, HashMap<String, Object> params) throws TcbException {
+    public JSONObject send(@NonNull String action, @NonNull HashMap<String, Object> params) throws TcbException {
         return send(action, params, "POST", new HashMap<String, String>(), 0);
     }
 
-    public JSONObject send(String action, HashMap<String, Object> params, String method) throws TcbException {
+    public JSONObject send(@NonNull String action, @NonNull HashMap<String, Object> params, @NonNull String method) throws TcbException {
         return send(action, params, method, new HashMap<String, String>(), 0);
     }
 
-    public JSONObject send(String action, HashMap<String, Object> params, String method, HashMap<String, String> headers, int timeout) throws TcbException {
+    public JSONObject send(@NonNull String action, @NonNull HashMap<String, Object> params, @NonNull String method, HashMap<String, String> headers, int timeout) throws TcbException {
         try {
             return internalSend(action, params, method, headers, timeout);
         } catch (IOException e) {
@@ -44,7 +46,7 @@ public class Request {
         }
     }
 
-    private JSONObject internalSend(String action, HashMap<String, Object> params, String method, HashMap<String, String> headers, int timeout) throws JSONException, IOException {
+    private JSONObject internalSend(@NonNull String action, @NonNull HashMap<String, Object> params, @NonNull String method, @NonNull HashMap<String, String> headers, int timeout) throws JSONException, IOException {
         headers.put("user-agent","tcb-php-sdk/beta");
 
         // 补充必要参数
@@ -103,7 +105,7 @@ public class Request {
         }
     }
 
-    private String getAuth(String secretId, String secretKey, String method, String pathname, HashMap<String, Object> queryParams, HashMap<String, String> headers) {
+    private String getAuth(@NonNull String secretId, @NonNull String secretKey, @NonNull String method, @NonNull String pathname, @NonNull HashMap<String, Object> queryParams, @NonNull HashMap<String, String> headers) {
 
 //        // 签名有效起止时间
 //        long now = (new Date().getTime() / 1000) - 1;
