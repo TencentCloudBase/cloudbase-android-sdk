@@ -1,6 +1,8 @@
 package com.tencent.tcb.utils;
 
 
+import com.tencent.tcb.constants.Code;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,11 +31,25 @@ public class Request {
         this.config = config;
     }
 
-    public JSONObject send(String action, JSONObject params, String method) throws JSONException, IOException{
+    public JSONObject send(String action, JSONObject params) throws TcbException {
+        return send(action, params, "POST", new JSONObject(), 0);
+    }
+
+    public JSONObject send(String action, JSONObject params, String method) throws TcbException {
         return send(action, params, method, new JSONObject(), 0);
     }
 
-    public JSONObject send(String action, JSONObject params, String method, JSONObject headers, int timeout) throws JSONException, IOException {
+    public JSONObject send(String action, JSONObject params, String method, JSONObject headers, int timeout) throws TcbException {
+        try {
+            return internalSend(action, params, method, headers, timeout);
+        } catch (IOException e) {
+            throw new TcbException(Code.NETWORK_ERR, e.getMessage());
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+    }
+
+    private JSONObject internalSend(String action, JSONObject params, String method, JSONObject headers, int timeout) throws JSONException, IOException {
         headers.put("user-agent","tcb-php-sdk/beta");
 
         // 补充必要参数
