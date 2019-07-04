@@ -11,19 +11,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class Request {
     private static final String TCB_ADMIN_URL = "http://tcb-admin.tencentcloudapi.com/admin";
-    private static final String TCB_OPEN_URL = "https://tcb-open.tencentcloudapi.com/admin";
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
 
@@ -33,15 +26,15 @@ public class Request {
         this.config = config;
     }
 
-    public JSONObject send(String action, HashMap<String, String> params) throws TcbException {
+    public JSONObject send(String action, HashMap<String, Object> params) throws TcbException {
         return send(action, params, "POST", new HashMap<String, String>(), 0);
     }
 
-    public JSONObject send(String action, HashMap<String, String> params, String method) throws TcbException {
+    public JSONObject send(String action, HashMap<String, Object> params, String method) throws TcbException {
         return send(action, params, method, new HashMap<String, String>(), 0);
     }
 
-    public JSONObject send(String action, HashMap<String, String> params, String method, HashMap<String, String> headers, int timeout) throws TcbException {
+    public JSONObject send(String action, HashMap<String, Object> params, String method, HashMap<String, String> headers, int timeout) throws TcbException {
         try {
             return internalSend(action, params, method, headers, timeout);
         } catch (IOException e) {
@@ -51,7 +44,7 @@ public class Request {
         }
     }
 
-    private JSONObject internalSend(String action, HashMap<String, String> params, String method, HashMap<String, String> headers, int timeout) throws JSONException, IOException {
+    private JSONObject internalSend(String action, HashMap<String, Object> params, String method, HashMap<String, String> headers, int timeout) throws JSONException, IOException {
         headers.put("user-agent","tcb-php-sdk/beta");
 
         // 补充必要参数
@@ -110,7 +103,7 @@ public class Request {
         }
     }
 
-    private String getAuth(String secretId, String secretKey, String method, String pathname, HashMap<String, String> queryParams, HashMap<String, String> headers) {
+    private String getAuth(String secretId, String secretKey, String method, String pathname, HashMap<String, Object> queryParams, HashMap<String, String> headers) {
 
 //        // 签名有效起止时间
 //        long now = (new Date().getTime() / 1000) - 1;

@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Config config = new Config();
                 Request request = new Request(config);
-                HashMap<String, String> params = new HashMap<>();
+                HashMap<String, Object> params = new HashMap<>();
                 params.put("path", "jimmyjzhang/wxf5132aa5236cbef7.o6zAJs6Ww9c8IdpuAjeD9JTHyuqg.7RWbrbsJ8fNab37154c5773759d9dd0ca4c0288ab100.jpeg");
                 try {
                     request.send("storage.getUploadMetadata", params, "POST");
