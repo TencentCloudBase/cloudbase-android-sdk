@@ -89,15 +89,12 @@ public class Request {
             connection.setRequestProperty(entry.getKey(), entry.getValue());
         }
         // 设置body参数
-        byte[] data = (params.toString()).getBytes();
-        connection.setRequestProperty("Content-Length", String.valueOf(data.length));
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Accept", "application/json");
         // 开始请求
         connection.connect();
         OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-        String p = Json.to
-        wr.write(p);
+        wr.write(new JSONObject(params).toString());
         wr.flush();
 
         // 处理回包
