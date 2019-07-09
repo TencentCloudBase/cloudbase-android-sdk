@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
-    private static final String TCB_ADMIN_URL = "http://tcb-admin.tencentcloudapi.com/admin";
+    private static final String TCB_ADMIN_URL = "http://118.126.68.63/admin";
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
 
@@ -44,6 +44,11 @@ public class Request {
         } catch (JSONException e) {
             throw new TcbException(Code.JSON_ERR, e.getMessage());
         }
+    }
+
+    public JSONObject sendMidData(@NonNull String action, @NonNull HashMap<String, Object> params) throws TcbException {
+        params.put("databaseMidTran", true);
+        return send(action, params);
     }
 
     private JSONObject internalSend(@NonNull String action, @NonNull HashMap<String, Object> params, @NonNull String method, @NonNull HashMap<String, String> headers, int timeout) throws JSONException, IOException {

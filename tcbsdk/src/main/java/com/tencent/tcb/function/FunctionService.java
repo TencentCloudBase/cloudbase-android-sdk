@@ -7,8 +7,10 @@ import org.json.JSONObject;
 
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.Config;
+import com.tencent.tcb.utils.TcbException;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class FunctionService {
     private final static String action = "functions.invokeFunction";
@@ -28,10 +30,10 @@ public class FunctionService {
         return innerCallFunction(name, data);
     }
 
-    private static JSONObject innerCallFunction(String name, JSONObject requestData) throws FunctionException, IOException, JSONException {
+    private static JSONObject innerCallFunction(String name, JSONObject requestData) throws FunctionException, JSONException {
         try {
             Config config = new Config();
-            JSONObject requestParams = new JSONObject();
+            HashMap<String, Object> requestParams = new HashMap<>();
             requestParams.put("function_nae", name);
             requestParams.put("request_data", requestData.toString());
             Request request = new Request(config);
@@ -62,12 +64,10 @@ public class FunctionService {
                 ret.put("result", result);
                 return ret;
             }
-        } catch (JSONException e) {
+        } catch (TcbException e) {
             Log.e("JSON Error", e.toString());
-            throw e;
-        } catch (IOException e) {
-            Log.e("IO Error", e.toString());
-            throw e;
+        } finally {
+            return new JSONObject();
         }
     }
 }
