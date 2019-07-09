@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">tcbdemo</string>
+    <string name="title_activity_wxentry">WXEntryActivity</string>
 </resources>

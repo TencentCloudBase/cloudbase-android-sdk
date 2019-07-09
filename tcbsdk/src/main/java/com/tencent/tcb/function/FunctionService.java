@@ -1,5 +1,6 @@
 package com.tencent.tcb.function;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -14,9 +15,11 @@ import java.util.HashMap;
 public class FunctionService {
     private final static String action = "functions.invokeFunction";
     private Config config;
+    private Context context;
 
-    public FunctionService(Config config) {
+    public FunctionService(Config config, Context context) {
         this.config = config;
+        this.context = context;
     }
 
     public JSONObject callFunction(String name) throws JSONException, TcbException {
@@ -37,10 +40,10 @@ public class FunctionService {
     private JSONObject internalCallFunction(String name, JSONObject requestData) throws JSONException, TcbException {
         try {
             HashMap<String, Object> requestParams = new HashMap<String, Object>();
-            requestParams.put("function_nae", name);
+            requestParams.put("function_name", name);
             requestParams.put("request_data", requestData.toString());
-            Request request = new Request(this.config);
-            JSONObject res = request.send(action, requestParams, "POST");
+            Request request = new Request(config, context);
+            JSONObject res = request.send(action, requestParams);
 
             // 异常情况
             if (res == null) {
