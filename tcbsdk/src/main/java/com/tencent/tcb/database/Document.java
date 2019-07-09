@@ -8,10 +8,12 @@ import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Document {
 
@@ -19,10 +21,13 @@ public class Document {
     private String collName;
     private String id;
     private Request request;
+    private HashMap<String, Number> projection;
 
-    public HashMap<String, Object> projection;
+    public Document(@NonNull Db db, @NonNull String collName, @Nullable String docID) {
+        this(db, collName, docID, new HashMap<String, Number>());
+    }
 
-    public Document(@NonNull Db db, @NonNull String collName, @Nullable String docID, @Nullable HashMap<String, Object> projection) {
+    public Document(@NonNull Db db, @NonNull String collName, @Nullable String docID, @Nullable HashMap<String, Number> projection) {
         this.db = db;
         this.collName = collName;
         this.id = docID;
@@ -161,7 +166,7 @@ public class Document {
      * @return
      * @throws TcbException
      */
-    public JSONObject remove() throws TcbException{
+    public JSONObject remove() throws TcbException {
         HashMap<String, String> query = new HashMap<>();
         query.put("_id", this.id);
 
@@ -186,7 +191,65 @@ public class Document {
         }
     }
 
-    private boolean checkOperatorMixed(HashMap<String, Object> data) {
+    public JSONObject get() throws TcbException {
+        HashMap<String, String> query = new HashMap<>();
+        query.put("_id", this.id);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("collectionName", this.collName);
+        params.put("query", query);
+        params.put("multi", false);
+        params.put("projection", this.projection);
+
+        JSONObject res = this.request.send("database.queryDocument", params);
+
+        if (res.has("code")) {
+            return res;
+        } else {
+            JSONObject result = new JSONObject();
+            try {
+                JSONArray documents = res.getJSONObject("data").getJSONArray("list");
+                documents = Util.formatResDocumentData(documents);
+
+                result.put("requestId", res.getString("requestId"));
+                result.put("data", documents);
+
+                if (res.has("TotalCount")) {
+                    result.put("TotalCount", res.getString("TotalCount"));
+                }
+                if (res.has("Limit")) {
+                    result.put("Limit", res.getString("Limit"));
+                }
+                if (res.has("Offset")) {
+                    result.put("Offset", res.getString("Offset"));
+                }
+            } catch (JSONException e) {
+                throw new TcbException(Code.JSON_ERR, e.getMessage());
+            }
+            return result;
+        }
+    }
+
+    /**
+     * 指定要返回的字段
+     *
+     * @param projection
+     * @return
+     */
+    public Document field(@NonNull HashMap<String, Boolean> projection) {
+        // 把true和false转义为1和0
+        HashMap<String, Number> newProjection = new HashMap<>();
+        for (Map.Entry<String, Boolean> entry : projection.entrySet()) {
+            if (entry.getValue()) {
+                newProjection.put(entry.getKey(), 1);
+            } else {
+                newProjection.put(entry.getKey(), 0);
+            }
+        }
+        return  new Document(this.db, this.collName, this.id, newProjection);
+    }
+
+    private boolean checkOperatorMixed(@NonNull HashMap<String, Object> data) {
         return false;
     }
 

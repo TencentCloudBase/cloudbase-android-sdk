@@ -12,12 +12,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class Util {
-    public static ArrayList<JSONObject> formatResDocumentData(@NonNull JSONArray documents) throws TcbException {
-        ArrayList<JSONObject> formatDocuments = new ArrayList<>();
+    public static JSONArray formatResDocumentData(@NonNull JSONArray documents) throws TcbException {
+        JSONArray formatDocuments = new JSONArray();
         try {
             for (int i = 0; i < documents.length(); i++) {
                 JSONObject formatDocument = formatField((JSONObject) documents.get(i));
-                formatDocuments.add(formatDocument);
+                formatDocuments.put(formatDocument);
             }
         } catch (JSONException e) {
             throw new TcbException(Code.JSON_ERR, e.getMessage());

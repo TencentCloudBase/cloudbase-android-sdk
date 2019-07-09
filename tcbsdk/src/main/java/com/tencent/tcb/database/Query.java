@@ -5,7 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.tencent.tcb.constants.Code;
-import com.tencent.tcb.database.Util.Format;
+import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
 

@@ -3,6 +3,12 @@ package com.tencent.tcb.database;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.tcb.utils.TcbException;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
 public class Collection extends Query{
 
     /**
@@ -15,12 +21,16 @@ public class Collection extends Query{
         super(db, collName);
     }
 
+    public Document doc() {
+        return doc(null);
+    }
+
     public Document doc(@Nullable String docID) {
         return new Document(this.db, this.collName, docID);
     }
 
-    public Document add() {
+    public JSONObject add(HashMap<String, Object> data) throws TcbException {
         Document document = this.doc();
-        document.create();
+        return document.create(data);
     }
 }
