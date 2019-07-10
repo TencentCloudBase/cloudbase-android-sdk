@@ -73,9 +73,6 @@ public class FunctionService {
         } catch (TcbException e) {
             Log.e("JSON Error", e.toString());
             throw e;
-        } catch (TcbException e) {
-            Log.e("TcbException", e.toString());
-            throw e;
         }
     }
 }
