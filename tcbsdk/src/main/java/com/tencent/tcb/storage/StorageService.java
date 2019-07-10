@@ -1,8 +1,8 @@
 package com.tencent.tcb.storage;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
@@ -10,24 +10,25 @@ import com.tencent.tcb.utils.TcbException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.Okio;
+import okio.Source;
 
 public class StorageService {
 
@@ -48,21 +49,51 @@ public class StorageService {
         return contentTypeFor;
     }
 
-    private static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
+    private void cosUploadFile(
+            String cloudPath,
+            final File file,
+            final FileTransportListener listener
+    ) throws TcbException, JSONException {
+        // 获取临时签名，上传 URL
+        JSONObject metaData = getUploadMetadata(cloudPath);
+        JSONObject data = metaData.getJSONObject("data");
+        String url = data.getString("url");
+        String token = data.getString("token");
+        String cosFileId = data.getString("cosFileId");
+        String sign = data.getString("authorization");
 
-    private void cosUploadFile(String url, String cloudPath, byte[] data, String sign, String cosFileId, String token) throws TcbException {
         final OkHttpClient client = new OkHttpClient();
 
-        RequestBody fileBody = RequestBody.create(MultipartBody.FORM, data);
+        RequestBody fileBody = new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return MediaType.parse("application/octet-stream");
+            }
+
+            @Override
+            public long contentLength() {
+                return file.length();
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                Source source;
+                source = Okio.source(file);
+                // 文件总大小
+                long total = file.length();
+                // 已传输字节块
+                long sum = 0;
+                long read = 0;
+                Buffer buf = new Buffer();
+
+                while ((read = source.read(buf, 2048)) != -1) {
+                    sum += read;
+                    sink.write(buf, read);
+                    int progress = (int) (sum * 1.0f / total * 100);
+                    listener.onProgress(progress);
+                }
+            }
+        };
 
         RequestBody requestBody = new MultipartBody
                 .Builder()
@@ -76,59 +107,57 @@ public class StorageService {
 
         okhttp3.Request request = new okhttp3.Request.Builder().url(url).post(requestBody).build();
         Response response;
-        String TAG = "E";
+
         try {
             response = client.newCall(request).execute();
-            Log.d(TAG, " upload jsonString =" + response);
 
-            if (!response.isSuccessful()) {
-                throw new TcbException("E", "upload error code " + response);
+            if (response.isSuccessful()) {
+                listener.onSuccess();
             } else {
-                Log.d("Info", "OK");
+                throw new TcbException("RES_ERR", "upload error code " + response);
             }
 
         } catch (IOException e) {
-            Log.d(TAG, "upload IOException ", e);
+            listener.onFailed(new TcbException(Code.IO_ERR, e.toString()));
         }
-
     }
 
-
-    public void uploadFile(String cloudPath, String filePath) throws JSONException, TcbException, IOException {
-        JSONObject metaData = getUploadMetadata(cloudPath);
-        Log.d("MetaData", metaData.toString());
-        JSONObject data = metaData.getJSONObject("data");
-        String url = data.getString("url");
-        String token = data.getString("token");
-        String cosFileId = data.getString("cosFileId");
-        String sign = data.getString("authorization");
-
-        FileInputStream fileInputStream = new FileInputStream(filePath);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        byte[] b = new byte[1024];
-        int bytesRead = 0;
-
-        while ((bytesRead = fileInputStream.read(b)) != -1) {
-            bos.write(b, 0, bytesRead);
+    public void uploadFile(String cloudPath, File file, FileTransportListener listener) {
+        try {
+            cosUploadFile(cloudPath, file, listener);
+        } catch (JSONException e) {
+            listener.onFailed(new TcbException(Code.JSON_ERR, e.toString()));
+        } catch (TcbException e) {
+            listener.onFailed(e);
         }
-
-        byte[] fileByteArray = bos.toByteArray();
-
-        cosUploadFile(url, cloudPath, fileByteArray, sign, cosFileId, token);
     }
 
-    public void downloadFile(String fileId, String tempFilePath, OnDownloadListener listener) {
+    public void uploadFile(String cloudPath, String filePath, FileTransportListener listener) {
+        try {
+            File file = new File(filePath);
+            cosUploadFile(cloudPath, file, listener);
+        } catch (JSONException e) {
+            listener.onFailed(new TcbException(Code.JSON_ERR, e.toString()));
+        } catch (TcbException e) {
+            listener.onFailed(e);
+        }
+    }
+
+    public void downloadFile(String fileId, String tempFilePath, FileTransportListener listener) {
         String tempDownUrl = "";
         try {
             String[] fileList = {fileId};
             JSONObject tempUrlRes = getTempFileURL(fileList);
-            tempDownUrl = (String) tempUrlRes.getJSONArray("fileList").get(0);
+            JSONObject file = tempUrlRes.getJSONArray("fileList").getJSONObject(0);
+            tempDownUrl = file.optString("download_url");
         } catch (JSONException e) {
-            listener.onDownloadFailed(null, new TcbException("GET_URL_ERROR", "get file download url error. detail: " + e.toString()));
+            listener.onFailed(
+                    new TcbException("GET_URL_ERROR",
+                            "get file download url error. detail: " + e.toString())
+            );
             return;
         } catch (TcbException e) {
-            listener.onDownloadFailed(null, e);
+            listener.onFailed(e);
             return;
         }
 
@@ -137,8 +166,15 @@ public class StorageService {
         InputStream inputStream = null;
         FileOutputStream fileOutputStream = null;
         try {
-            OkHttpClient client = new OkHttpClient();
-            okhttp3.Request request = new okhttp3.Request.Builder().url(tempDownUrl).build();
+            OkHttpClient client = new OkHttpClient.Builder().connectTimeout(15000,
+                    TimeUnit.MILLISECONDS).build();
+            okhttp3.Request request = new okhttp3.Request.Builder()
+                    .addHeader("Accept", "*/*")
+                    .addHeader("Connection", "keep-alive")
+                    .url(tempDownUrl)
+                    .get()
+                    .build();
+
             Response response = client.newCall(request).execute();
 
             if (response.body() == null) {
@@ -159,13 +195,14 @@ public class StorageService {
                 int progress = (int) (sum * 1.0f / total * 100);
                 listener.onProgress(progress);
             }
+
             fileOutputStream.flush();
             // 下载完成
-            listener.onDownloadSuccess();
+            listener.onSuccess();
         } catch (TcbException e) {
-            listener.onDownloadFailed(null, e);
+            listener.onFailed(e);
         } catch (IOException e) {
-            listener.onDownloadFailed(e, null);
+            listener.onFailed(new TcbException("IO_ERR", e.toString()));
         } finally {
             try {
                 if (inputStream != null) {
@@ -175,7 +212,7 @@ public class StorageService {
                     fileOutputStream.close();
                 }
             } catch (IOException e) {
-                Log.e("IOException", "stream close false" + e.toString());
+                listener.onFailed(new TcbException(Code.IO_ERR,"stream close false " + e.toString() ));
             }
         }
     }
@@ -185,6 +222,12 @@ public class StorageService {
 
         if (fileList.length < 1) {
             throw new TcbException("PARAM_INVALID", "fileList must not be empty");
+        }
+
+        for (String s : fileList) {
+            if (s.isEmpty()) {
+                throw new TcbException("PARAM_INVALID", "fileList must not be empty");
+            }
         }
 
         HashMap<String, Object> params = new HashMap<String, Object>();
@@ -213,6 +256,7 @@ public class StorageService {
         for (String s : fileList) {
             HashMap<String, Object> fileMeta = new HashMap<>();
             fileMeta.put("fileid", s);
+            fileMeta.put("max_age", 1800);
             files.add(fileMeta);
         }
 
@@ -221,6 +265,10 @@ public class StorageService {
         params.put("file_list", files);
 
         JSONObject res = request.send(getTempURLAction, params);
+
+        if (res == null) {
+            throw new TcbException("RES_NULL", "get a null response");
+        }
 
         // 存在 code，说明返回值存在异常
         if (res.has("code")) {
@@ -234,7 +282,8 @@ public class StorageService {
         }
     }
 
-    public JSONObject getTempFileURL(ArrayList<FileMeta> fileList) throws TcbException, JSONException {
+    public JSONObject getTempFileURL(ArrayList<FileMeta> fileList) throws TcbException,
+            JSONException {
 
         if (fileList.isEmpty()) {
             throw new TcbException("PARAM_INVALID", "fileList must not be empty");
@@ -280,15 +329,15 @@ public class StorageService {
         }
     }
 
-    public interface OnDownloadListener {
-        // 下载成功
-        void onDownloadSuccess();
+    public interface FileTransportListener {
+        // 传输成功
+        void onSuccess();
 
-        // 下载进度
+        // 传输进度
         void onProgress(int progress);
 
-        // 下载失败
-        void onDownloadFailed(IOException e, TcbException err);
+        // 传输失败
+        void onFailed(TcbException e);
     }
 }
 

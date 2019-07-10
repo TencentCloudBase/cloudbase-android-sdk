@@ -1,7 +1,5 @@
 package com.tencent.tcb.utils;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.tencent.tcb.constants.Code;
@@ -21,7 +19,7 @@ import okhttp3.Response;
 
 
 public class BaseRequest {
-    private static final String TCB_WEB_URL = "http://tcb-api.tencentcloudapi.com/web";
+    private static final String TCB_WEB_URL = "https://tcb-api.tencentcloudapi.com/web";
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
 
@@ -48,9 +46,6 @@ public class BaseRequest {
             throw new TcbException(Code.NETWORK_ERR, e.getMessage());
         } catch (JSONException e) {
             throw new TcbException(Code.JSON_ERR, e.getMessage());
-        } catch (Exception e) {
-            Log.e("错误", e.toString());
-            return null;
         }
     }
 
@@ -72,7 +67,8 @@ public class BaseRequest {
         timeout = timeout != 0 ? timeout : (config.timeout != 0 ? config.timeout :
                 TCB_DEFAULT_TIMEOUT);
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(timeout, TimeUnit.SECONDS).build();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(timeout,
+                TimeUnit.MILLISECONDS).build();
 
         // 数据类型为 JSON 格式
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -93,23 +89,15 @@ public class BaseRequest {
         okhttp3.Request request = requestBuilder.url(TCB_WEB_URL)
                 .post(body)
                 .build();
-        try {
-            Response response = okHttpClient.newCall(request).execute();
-            if (response.isSuccessful()) {
-                if (response.body() == null) {
-                    return null;
-                }
-                String resBody = response.body().string();
-                Log.d("响应", resBody);
-                return new JSONObject(resBody);
-            } else {
+        Response response = okHttpClient.newCall(request).execute();
+        if (response.isSuccessful()) {
+            if (response.body() == null) {
                 return null;
             }
-        } catch (Exception e) {
-            Log.e("Err", e.toString());
+            String resBody = response.body().string();
+            return new JSONObject(resBody);
+        } else {
+            return null;
         }
-
-        Log.d("响应", "响应");
-        return null;
     }
 }

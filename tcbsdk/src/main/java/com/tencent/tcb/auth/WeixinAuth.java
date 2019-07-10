@@ -84,8 +84,6 @@ public class WeixinAuth {
         JSONObject res = request.send(authAction, param);
         String code = res.optString("code");
 
-        Log.d("WeixinAuth", code);
-
         // 存在异常
         if (!code.isEmpty()) {
             // 读取错误信息
@@ -139,9 +137,6 @@ public class WeixinAuth {
         accessToken = authData.accessToken;
         refreshToken = authData.refreshToken;
         accessTokenExpired = authData.accessTokenExpired;
-        accessTokenExpired = 1561675927916L;
-
-        Log.d("过期时间", String.valueOf(accessTokenExpired));
 
         if (accessToken != null && !accessToken.isEmpty()) {
             long now = new Date().getTime();

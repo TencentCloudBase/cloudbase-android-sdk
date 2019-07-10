@@ -1,11 +1,11 @@
 package com.tencent.tcb.function;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
@@ -22,7 +22,7 @@ public class FunctionService {
         this.context = context;
     }
 
-    public JSONObject callFunction(String name) throws JSONException, TcbException {
+    public JSONObject callFunction(String name) throws TcbException {
         if (name == null || name.length() < 1) {
             throw new TcbException("INVALID_PARAM", "function name must not be empty");
         }
@@ -30,14 +30,14 @@ public class FunctionService {
         return internalCallFunction(name, data);
     }
 
-    public JSONObject callFunction(String name, JSONObject data) throws JSONException, TcbException {
+    public JSONObject callFunction(String name, JSONObject data) throws TcbException {
         if (name == null || name.length() < 1) {
             throw new TcbException("INVALID_PARAM", "function name must not be empty");
         }
         return internalCallFunction(name, data);
     }
 
-    private JSONObject internalCallFunction(String name, JSONObject requestData) throws JSONException, TcbException {
+    private JSONObject internalCallFunction(String name, JSONObject requestData) throws TcbException {
         try {
             HashMap<String, Object> requestParams = new HashMap<String, Object>();
             requestParams.put("function_name", name);
@@ -71,11 +71,7 @@ public class FunctionService {
                 return ret;
             }
         } catch (JSONException e) {
-            Log.e("JSON Error", e.toString());
-            throw e;
-        } catch (TcbException e) {
-            Log.e("TcbException", e.toString());
-            throw e;
+            throw new TcbException(Code.JSON_ERR, e.toString());
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.tencent.tcb.utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -52,7 +51,6 @@ public class Request extends BaseRequest {
     ) throws JSONException, IOException, TcbException {
         String accessToken = getAccessToken();
         params.put("access_token", accessToken);
-        Log.d("请求", accessToken);
         return super.internalSend(action, params, headers, timeout);
     }
 
