@@ -22,10 +22,10 @@ public class Collection extends Query{
     }
 
     public Document doc() {
-        return doc(null);
+        return new Document(this.db, this.collName, null);
     }
 
-    public Document doc(@Nullable String docID) {
+    public Document doc(@NonNull String docID) {
         return new Document(this.db, this.collName, docID);
     }
 

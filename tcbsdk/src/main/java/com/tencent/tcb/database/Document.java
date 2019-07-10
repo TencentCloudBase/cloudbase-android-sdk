@@ -27,7 +27,7 @@ public class Document {
         this(db, collName, docID, new HashMap<String, Number>());
     }
 
-    public Document(@NonNull Db db, @NonNull String collName, @Nullable String docID, @Nullable HashMap<String, Number> projection) {
+    private Document(@NonNull Db db, @NonNull String collName, @Nullable String docID, @Nullable HashMap<String, Number> projection) {
         this.db = db;
         this.collName = collName;
         this.id = docID;
@@ -246,7 +246,7 @@ public class Document {
                 newProjection.put(entry.getKey(), 0);
             }
         }
-        return  new Document(this.db, this.collName, this.id, newProjection);
+        return new Document(this.db, this.collName, this.id, newProjection);
     }
 
     private boolean checkOperatorMixed(@NonNull HashMap<String, Object> data) {
