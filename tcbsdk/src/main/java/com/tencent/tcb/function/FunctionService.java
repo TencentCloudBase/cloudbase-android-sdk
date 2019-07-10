@@ -1,5 +1,6 @@
 package com.tencent.tcb.function;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -9,44 +10,49 @@ import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 public class FunctionService {
     private final static String action = "functions.invokeFunction";
+    private Config config;
+    private Context context;
 
-    public static JSONObject callFunction(String name) throws FunctionException, IOException, JSONException {
+    public FunctionService(Config config, Context context) {
+        this.config = config;
+        this.context = context;
+    }
+
+    public JSONObject callFunction(String name) throws JSONException, TcbException {
         if (name == null || name.length() < 1) {
-            throw new FunctionException("INVALID_PARAM", "function name must not be empty");
+            throw new TcbException("INVALID_PARAM", "function name must not be empty");
         }
         JSONObject data = new JSONObject();
-        return innerCallFunction(name, data);
+        return internalCallFunction(name, data);
     }
 
-    public static JSONObject callFunction(String name, JSONObject data) throws FunctionException, IOException, JSONException {
+    public JSONObject callFunction(String name, JSONObject data) throws JSONException, TcbException {
         if (name == null || name.length() < 1) {
-            throw new FunctionException("INVALID_PARAM", "function name must not be empty");
+            throw new TcbException("INVALID_PARAM", "function name must not be empty");
         }
-        return innerCallFunction(name, data);
+        return internalCallFunction(name, data);
     }
 
-    private static JSONObject innerCallFunction(String name, JSONObject requestData) throws FunctionException, JSONException {
+    private JSONObject internalCallFunction(String name, JSONObject requestData) throws JSONException, TcbException {
         try {
-            Config config = new Config();
-            HashMap<String, Object> requestParams = new HashMap<>();
-            requestParams.put("function_nae", name);
+            HashMap<String, Object> requestParams = new HashMap<String, Object>();
+            requestParams.put("function_name", name);
             requestParams.put("request_data", requestData.toString());
-            Request request = new Request(config);
-            JSONObject res = request.send(action, requestParams, "POST");
+            Request request = new Request(config, context);
+            JSONObject res = request.send(action, requestParams);
 
             // 异常情况
             if (res == null) {
-                throw new FunctionException("RES_NULL", "unknown error, res is null");
+                throw new TcbException("RES_NULL", "unknown error, res is null");
             }
 
             // 存在 code，说明返回值存在异常
             if (res.has("code")) {
-                throw new FunctionException(res.getString("code"), res.getString("message"));
+                throw new TcbException(res.getString("code"), res.getString("message"));
             } else {
                 // 尝试解析 response
                 JSONObject data = res.getJSONObject("data");
@@ -66,8 +72,10 @@ public class FunctionService {
             }
         } catch (TcbException e) {
             Log.e("JSON Error", e.toString());
-        } finally {
-            return new JSONObject();
+            throw e;
+        } catch (TcbException e) {
+            Log.e("TcbException", e.toString());
+            throw e;
         }
     }
 }
