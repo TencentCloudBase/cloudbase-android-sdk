@@ -50,7 +50,7 @@ public class Query {
         this.fieldFilters = fieldFilters;
         this.fieldOrders = fieldOrders;
         this.queryOptions = queryOptions;
-        this.request = new Request(this.db.config);
+        this.request = new Request(this.db.config, this.db.context);
     }
 
     public JSONObject get() throws TcbException {

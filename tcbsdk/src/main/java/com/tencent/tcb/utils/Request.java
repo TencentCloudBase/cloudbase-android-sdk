@@ -43,6 +43,20 @@ public class Request extends BaseRequest {
         }
     }
 
+    public JSONObject sendMidData(
+            @NonNull String action,
+            @NonNull HashMap<String, Object> params
+    ) throws TcbException{
+        try {
+            params.put("databaseMidTran", true);
+            return authSend(action, params, null, 0);
+        } catch (IOException e) {
+            throw new TcbException(Code.NETWORK_ERR, e.getMessage());
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+    }
+
     private JSONObject authSend(
             @NonNull String action,
             @NonNull HashMap<String, Object> params,

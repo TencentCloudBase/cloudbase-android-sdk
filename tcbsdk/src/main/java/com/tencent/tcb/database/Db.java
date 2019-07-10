@@ -1,5 +1,7 @@
 package com.tencent.tcb.database;
 
+import android.content.Context;
+
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Regexp.RegExp;
 import com.tencent.tcb.database.ServerDate.ServerDate;
@@ -15,10 +17,12 @@ import java.util.HashMap;
 
 public class Db {
     public Config config;
+    public Context context;
     public Command command;
 
-    public Db(Config config) {
+    public Db(Config config, Context context) {
         this.config = config;
+        this.context = context;
         this.command = new Command();
     }
 
@@ -53,7 +57,7 @@ public class Db {
             throw new TcbException(Code.EMPTY_PARAM, "Collection name is required");
         }
 
-        Request request = new Request(this.config);
+        Request request = new Request(this.config, this.context);
         HashMap<String, Object> params = new HashMap<>();
         params.put("clooectionName", collName);
         JSONObject result = request.send("database.addCollection", params);

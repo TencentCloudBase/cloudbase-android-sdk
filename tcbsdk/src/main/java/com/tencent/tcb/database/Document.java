@@ -32,7 +32,7 @@ public class Document {
         this.collName = collName;
         this.id = docID;
         this.projection = projection;
-        this.request = new Request(this.db.config);
+        this.request = new Request(this.db.config, this.db.context);
     }
 
     /**
