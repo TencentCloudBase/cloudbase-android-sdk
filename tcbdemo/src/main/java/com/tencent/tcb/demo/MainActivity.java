@@ -16,10 +16,6 @@ import com.tencent.tcb.utils.TcbException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,8 +30,12 @@ public class MainActivity extends AppCompatActivity {
         final Context context = this;
         config = new Config();
         weixinAuth = new WeixinAuth(this, config);
-        this.invokeFunctionTest(this);
-//        this.mockLogin();
+        // this.invokeFunctionTest(this);
+        // this.mockLogin();
+        // this.fileTest(this);
+        // this.downLoadFileTest(this);
+        // this.deleteFileTest(this);
+        this.uploadFileTest(this);
     }
 
     // 模拟登录
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             public void run() {
                 Log.d(LogTag, "返回 Code");
-                weixinAuth.callback("081a7rdi1Lwsev0BPHfi1zJDdi1a7rdg");
+                weixinAuth.callback("011mI4mD0sOXOk2scunD0Ej8mD0mI4mx");
             }
         }, 2000);
     }
@@ -75,11 +75,78 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONObject res = functionService.callFunction("test-scf");
                     Log.d(LogTag, res.toString());
-                } catch (JSONException e) {
-                    Log.e(LogTag, e.toString());
                 } catch (TcbException e) {
                     Log.e(LogTag, e.toString());
                 }
+            }
+        }).start();
+    }
+
+    private void fileTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StorageService storageService = new StorageService(config, context);
+                String LogTag = "FileTest";
+
+                try {
+                    String[] fileList = {"cloud://dev-97eb6c.6465-dev-97eb6c/500.svg"};
+                    JSONObject tempUrl = storageService.getTempFileURL(fileList);
+                    Log.d(LogTag, tempUrl.toString());
+                } catch (TcbException e) {
+                    Log.e(LogTag, e.toString());
+                } catch (JSONException e) {
+                    Log.e(LogTag, e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void deleteFileTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StorageService storageService = new StorageService(config, context);
+                String LogTag = "FileTest";
+
+                try {
+                    String[] fileList = {"cloud://dev-97eb6c.6465-dev-97eb6c/ddia-cn.pdf"};
+                    JSONObject tempUrl = storageService.deleteFile(fileList);
+                    Log.d(LogTag, tempUrl.toString());
+                } catch (TcbException e) {
+                    Log.e(LogTag, e.toString());
+                } catch (JSONException e) {
+                    Log.e(LogTag, e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void uploadFileTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StorageService storage = new StorageService(config, context);
+                String root = getApplicationInfo().dataDir;
+                final String LogTag = "UploadFileTest";
+
+                storage.uploadFile("books/cn.pdf", root + "/files" + "/ddcn.pdf", new StorageService.FileTransportListener() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onProgress(int progress) {
+                        Log.d(LogTag, String.valueOf(progress));
+                    }
+
+                    @Override
+                    public void onFailed(TcbException e) {
+                        Log.e(LogTag, e.toString());
+                    }
+                });
+
             }
         }).start();
     }
@@ -88,54 +155,28 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Config config = new Config();
-                String data = "Data to write";
-                FileOutputStream out = null;
-                BufferedWriter writer = null;
-                try {
-                    StorageService storage = new StorageService(config, context);
-                    String root = getApplicationInfo().dataDir;
-                    out = openFileOutput("data.txt", Context.MODE_PRIVATE);
-                    writer = new BufferedWriter(new OutputStreamWriter(out));
-                    writer.write(data);
-                    writer.close();
+                StorageService storage = new StorageService(config, context);
+                String root = getApplicationInfo().dataDir;
+                String LogTag = "DownFileTest";
 
-                    storage.downloadFile("cloud://6465-dev-97eb6c/ddia-cn.pdf", root + "/files/Redis.pdf",
-                            new StorageService.OnDownloadListener() {
-                                @Override
-                                public void onDownloadSuccess() {
-                                    Log.d("Ok", "Download success");
-                                }
+                storage.downloadFile(
+                        "cloud://dev-97eb6c.6465-dev-97eb6c/500.svg", root + "/files" + "/500.svg",
+                        new StorageService.FileTransportListener() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("Ok", "Download success");
+                            }
 
-                                @Override
-                                public void onProgress(int progress) {
-                                    Log.d("Download", String.valueOf(progress));
-                                }
+                            @Override
+                            public void onProgress(int progress) {
+                                Log.d("Download", String.valueOf(progress));
+                            }
 
-                                @Override
-                                public void onDownloadFailed(IOException e, TcbException err) {
-                                    if (e != null) {
-                                        Log.e("failed", e.toString());
-                                    }
-
-                                    if (err != null) {
-                                        Log.e("failed", err.toString());
-                                    }
-                                }
-                            });
-                } catch (IOException e) {
-                    Log.e("IOException", e.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (writer != null) {
-                            writer.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                            @Override
+                            public void onFailed(TcbException e) {
+                                Log.e("failed", e.toString());
+                            }
+                        });
             }
         }).start();
     }
