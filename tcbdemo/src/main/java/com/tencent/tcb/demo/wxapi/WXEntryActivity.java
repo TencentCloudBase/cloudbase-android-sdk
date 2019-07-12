@@ -11,28 +11,33 @@ import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.auth.WeixinAuth;
+import com.tencent.tcb.utils.Config;
+import com.tencent.tcb.utils.TcbException;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
-    private static final int RETURN_MSG_TYPE_LOGIN = 1;
-    private static final int RETURN_MSG_TYPE_SHARE = 2;
     private WeixinAuth weixinAuth = null;
+    public String envName = "dev-97eb6c";
+    // 请使用微信开放平台移动应用 appId
+    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
+    public String appId = "wx9c4c30a432a38ebc";
+    public String domain = "http://jimmytest-088bef.tcb.qcloud.la";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Config config = new Config();
-        weixinAuth = new WeixinAuth(this, config);
-        IWXAPI wxAPI = weixinAuth.getInstance().getWxAPI();
+        Config config = new Config(envName, appId, domain);
+        weixinAuth = WeixinAuth.getInstance(this, config);
+        IWXAPI wxAPI = weixinAuth.getWxAPI();
 
-        //如果没回调onResp，八成是这句没有写
+        // 处理微信回调数据
         wxAPI.handleIntent(getIntent(), this);
     }
 
     // 微信发送请求到第三方应用时，会回调到该方法
     @Override
     public void onReq(BaseReq req) {
+
     }
 
     // 第三方应用发送到微信的请求处理后的响应结果，会回调到该方法
@@ -40,20 +45,30 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onResp(BaseResp resp) {
         switch (resp.errCode) {
-
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
             case BaseResp.ErrCode.ERR_USER_CANCEL:
-                Log.e("AUTH FAILED", "");
+                weixinAuth.loginListener.onFailed(
+                        new TcbException("ERR_AUTH_DENIED", "user auth denied")
+                );
                 break;
             case BaseResp.ErrCode.ERR_OK:
-                String code = ((SendAuth.Resp) resp).code;
+                final String code = ((SendAuth.Resp) resp).code;
                 if (code != null) {
                     // 拿到了微信返回的code,立马再去请求access_token
-                    Log.d("OK", "get openid");
-                    weixinAuth.callback(code);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            weixinAuth.callback(code);
+                        }
+                    }).start();
                 }
             default:
+                weixinAuth.loginListener.onFailed(
+                        new TcbException("ERR_AUTH_DENIED", "user auth denied")
+                );
                 Log.e("Auth failed", "");
         }
+
+        finish();
     }
 }

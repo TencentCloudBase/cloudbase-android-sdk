@@ -1,8 +1,8 @@
 package com.tencent.tcb.auth;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.tencent.tcb.constants.Code;
@@ -23,13 +23,12 @@ public class WeixinAuth {
     private String appId = "";
     // IWXAPI 是第三方app和微信通信的 openApi 接口
     private IWXAPI api = null;
-    private Context context = null;
-    private WeixinAuth instance = null;
     private TCBStore tcbStore = null;
-    private LoginListener loginListener = null;
     private String code = "";
     private String refreshToken = "";
     private long accessTokenExpired = 0;
+    private static WeixinAuth instance;
+    public LoginListener loginListener = null;
     public String accessToken = "";
 
     private enum GetAccessTokenType {Code, RefreshToken}
@@ -38,19 +37,18 @@ public class WeixinAuth {
     private boolean hashCheckLogin = false;
 
     public WeixinAuth(Context context, Config config) {
-        // instance 已存在，不再次实例化
-        if (this.instance != null) {
-            return;
-        }
         request = new BaseRequest(config);
         this.appId = config.appId;
-        this.context = context;
         tcbStore = new TCBStore(context);
-        registerToWx();
+        registerToWx(context);
     }
 
-    public WeixinAuth getInstance() {
-        return this.instance;
+    public static WeixinAuth getInstance(Context context, Config config) {
+        if (instance == null) {
+            instance = new WeixinAuth(context, config);
+            return instance;
+        }
+        return instance;
     }
 
     public IWXAPI getWxAPI() {
@@ -59,7 +57,7 @@ public class WeixinAuth {
 
     // 注册到微信
     // 要使你的程序启动后微信终端能响应你的程序，必须在代码中向微信终端注册你的 id
-    public void registerToWx() {
+    public void registerToWx(Context context) {
         // 通过 WXAPIFactory 工厂，获取 IWXAPI 的实例
         api = WXAPIFactory.createWXAPI(context, appId, true);
 
@@ -183,7 +181,6 @@ public class WeixinAuth {
                 tcbStore.set(tcbStore.ACCESS_TOKEN_KEY, accessToken);
                 tcbStore.set(tcbStore.REFRESH_TOKEN_KEY, refreshToken);
                 tcbStore.set(tcbStore.ACCESS_TOKEN_EXPIRED_KEY, accessTokenExpired);
-                ;
                 listener.onSuccess();
                 return;
             } catch (TcbException e) {
@@ -197,16 +194,16 @@ public class WeixinAuth {
 
         // 未授权
         // 未安装微信
-//        if (!api.isWXAppInstalled()) {
-//            return;
-//        }
-//
-//        final SendAuth.Req req = new SendAuth.Req();
-//        // 获取用户信息
-//        req.scope = "snsapi_base";
-//        req.state = "diandi_wx_login";
-//        api.sendReq(req);
-        Log.d("Login", "拉起微信");
+        if (!api.isWXAppInstalled()) {
+            loginListener.onFailed(new TcbException(Code.AUTH_FAILED, "未安装微信"));
+            return;
+        }
+
+        final SendAuth.Req req = new SendAuth.Req();
+        // 获取用户信息
+        req.scope = "snsapi_userinfo";
+        req.state = "diandi_wx_login";
+        api.sendReq(req);
     }
 
     // 清空存储数据，登出
@@ -215,7 +212,7 @@ public class WeixinAuth {
     }
 
     // WXEntryActivity 获取 code 后回调传回 code
-    public void callback(String code) {
+    public void callback(final String code) {
         this.code = code;
         login(loginListener);
     }

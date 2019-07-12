@@ -5,63 +5,73 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.tencent.tcb.auth.WeixinAuth;
 import com.tencent.tcb.function.FunctionService;
 import com.tencent.tcb.storage.StorageService;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.auth.LoginListener;
+import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class MainActivity extends AppCompatActivity {
     private Config config = null;
     WeixinAuth weixinAuth = null;
+    public String envName = "dev-97eb6c";
+    // 请使用微信开放平台移动应用 appId
+    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
+    public String appId = "wx9c4c30a432a38ebc";
+    public String domain = "http://jimmytest-088bef.tcb.qcloud.la";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Context context = this;
-        config = new Config();
-        weixinAuth = new WeixinAuth(this, config);
-        // this.invokeFunctionTest(this);
-        // this.mockLogin();
-        // this.fileTest(this);
-        // this.downLoadFileTest(this);
-        // this.deleteFileTest(this);
-        this.uploadFileTest(this);
-    }
 
-    // 模拟登录
-    private void mockLogin() {
-        final String LogTag = "MockLogin";
-
-        weixinAuth.login(new LoginListener() {
+        // 点击按钮，调用微信登录
+        Button button = (Button) findViewById(R.id.weixin_login_button);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess() {
-                Log.d(LogTag, "success");
-            }
-
-            @Override
-            public void onFailed(TcbException e) {
-                Log.e(LogTag, e.toString());
+            public void onClick(View view) {
+                weixinLogin();
             }
         });
 
-        Timer timer = new Timer();
+        final Context context = this;
+        config = new Config(envName, appId, domain);
+        weixinAuth = WeixinAuth.getInstance(this, config);
+        // this.invokeFunctionTest(this);
+        // this.mockLogin();
+        // this.fileTest(this);
+        this.downLoadFileTest(this);
+        // this.deleteFileTest(this);
+        // this.uploadFileTest(this);
+    }
 
-        timer.schedule(new TimerTask() {
+    // 拉起微信登录
+    private void weixinLogin() {
+        new Thread(new Runnable() {
+            @Override
             public void run() {
-                Log.d(LogTag, "返回 Code");
-                weixinAuth.callback("011mI4mD0sOXOk2scunD0Ej8mD0mI4mx");
+                final String LogTag = "WeixinLogin";
+                Log.d("deng", "de");
+                weixinAuth.login(new LoginListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(LogTag, "success");
+                    }
+
+                    @Override
+                    public void onFailed(TcbException e) {
+                        Log.e(LogTag, e.toString());
+                    }
+                });
             }
-        }, 2000);
+        }).start();
     }
 
     // 调用函数测试
@@ -95,8 +105,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(LogTag, tempUrl.toString());
                 } catch (TcbException e) {
                     Log.e(LogTag, e.toString());
-                } catch (JSONException e) {
-                    Log.e(LogTag, e.toString());
                 }
             }
         }).start();
@@ -115,8 +123,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(LogTag, tempUrl.toString());
                 } catch (TcbException e) {
                     Log.e(LogTag, e.toString());
-                } catch (JSONException e) {
-                    Log.e(LogTag, e.toString());
                 }
             }
         }).start();
@@ -130,22 +136,25 @@ public class MainActivity extends AppCompatActivity {
                 String root = getApplicationInfo().dataDir;
                 final String LogTag = "UploadFileTest";
 
-                storage.uploadFile("books/cn.pdf", root + "/files" + "/ddcn.pdf", new StorageService.FileTransportListener() {
-                    @Override
-                    public void onSuccess() {
+                storage.uploadFile(
+                        "books/cn.pdf",
+                        root + "/files" + "/ddcn.pdf",
+                        new StorageService.FileTransportListener() {
+                            @Override
+                            public void onSuccess(JSONObject result) {
 
-                    }
+                            }
 
-                    @Override
-                    public void onProgress(int progress) {
-                        Log.d(LogTag, String.valueOf(progress));
-                    }
+                            @Override
+                            public void onProgress(int progress) {
+                                Log.d(LogTag, String.valueOf(progress));
+                            }
 
-                    @Override
-                    public void onFailed(TcbException e) {
-                        Log.e(LogTag, e.toString());
-                    }
-                });
+                            @Override
+                            public void onFailed(TcbException e) {
+                                Log.e(LogTag, e.toString());
+                            }
+                        });
 
             }
         }).start();
@@ -159,11 +168,15 @@ public class MainActivity extends AppCompatActivity {
                 String root = getApplicationInfo().dataDir;
                 String LogTag = "DownFileTest";
 
+                Log.d("run", "run");
+
                 storage.downloadFile(
-                        "cloud://dev-97eb6c.6465-dev-97eb6c/500.svg", root + "/files" + "/500.svg",
+                        "cloud://dev-97eb6c.6465-dev-97eb6c/500.svg",
+                        "/data/data/com.tencent.tcb.demo/files/500.svg",
                         new StorageService.FileTransportListener() {
                             @Override
-                            public void onSuccess() {
+                            public void onSuccess(JSONObject result) {
+                                // result 为 null
                                 Log.d("Ok", "Download success");
                             }
 
