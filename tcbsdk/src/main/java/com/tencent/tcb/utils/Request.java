@@ -49,7 +49,7 @@ public class Request extends BaseRequest {
     ) throws TcbException{
         try {
             params.put("databaseMidTran", true);
-            return authSend(action, params, null, 0);
+            return authSend(action, params, new HashMap<String, String>(), 0);
         } catch (IOException e) {
             throw new TcbException(Code.NETWORK_ERR, e.getMessage());
         } catch (JSONException e) {

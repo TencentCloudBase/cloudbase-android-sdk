@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class Collection extends Query{
+public class Collection extends Query {
 
     /**
      * 初始化
@@ -29,7 +29,7 @@ public class Collection extends Query{
         return new Document(this.db, this.collName, docID);
     }
 
-    public JSONObject add(HashMap<String, Object> data) throws TcbException {
+    public JSONObject add(JSONObject data) throws TcbException {
         Document document = this.doc();
         return document.create(data);
     }

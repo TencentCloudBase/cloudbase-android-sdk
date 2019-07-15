@@ -42,7 +42,7 @@ public class Document {
      * @return
      * @throws TcbException
      */
-    public JSONObject create(HashMap<String, Object> data) throws TcbException {
+    public JSONObject create(JSONObject data) throws TcbException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
         params.put("data", Format.dataFormat(data));
@@ -76,8 +76,8 @@ public class Document {
      * @return
      * @throws TcbException
      */
-    public JSONObject set(@NonNull HashMap<String, Object> data) throws TcbException {
-        if (data.containsKey("_id")) {
+    public JSONObject set(@NonNull JSONObject data) throws TcbException {
+        if (data.has("_id")) {
             throw new TcbException(Code.INVALID_PARAM, "不能更新_id的值");
         }
 
@@ -126,8 +126,8 @@ public class Document {
      * @return
      * @throws TcbException
      */
-    public JSONObject update(@NonNull HashMap<String, Object> data) throws TcbException {
-        if (data.containsKey("_id")) {
+    public JSONObject update(@NonNull JSONObject data) throws TcbException {
+        if (data.has("_id")) {
             throw new TcbException(Code.INVALID_PARAM, "不能更新_id的值");
         }
 
@@ -249,7 +249,8 @@ public class Document {
         return new Document(this.db, this.collName, this.id, newProjection);
     }
 
-    private boolean checkOperatorMixed(@NonNull HashMap<String, Object> data) {
+    private boolean checkOperatorMixed(@NonNull JSONObject data) {
+        //todo:
         return false;
     }
 

@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.tencent.tcb.auth.WeixinAuth;
+import com.tencent.tcb.database.Db;
 import com.tencent.tcb.function.FunctionService;
 import com.tencent.tcb.storage.StorageService;
 import com.tencent.tcb.auth.LoginListener;
@@ -17,6 +18,8 @@ import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private Config config = null;
@@ -50,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         this.downLoadFileTest(this);
         // this.deleteFileTest(this);
         // this.uploadFileTest(this);
+        // this.dbAddTest(this);
+        // this.dbCountTest(this);
+        // this.dbQueryTest(this);
     }
 
     // 拉起微信登录
@@ -193,4 +199,64 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+    private void dbAddTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(context, config);
+                JSONObject result;
+                try {
+                    JSONObject data = new JSONObject();
+                    data.put("name", "jimmytest");
+                    result = db.collection("user").add(data);
+                    Log.d("DbAdd", "Db add document success");
+                } catch (TcbException e) {
+                    Log.e("DbAdd", e.getMessage());
+                } catch (JSONException e) {
+                    Log.e("DbAdd", e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+    private void dbCountTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(context, config);
+                JSONObject result;
+                try {
+                    result = db.collection("user").count();
+                    Log.d("DbCount", "Db count success");
+                } catch (TcbException e) {
+                    Log.e("DbCount", e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+    private void dbQueryTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(context, config);
+                JSONObject result;
+                try {
+//                    JSONObject query = new JSONObject();
+//                    query.put("name", "jimmytest");
+                    HashMap<String, Object> query = new HashMap<>();
+                    query.put("name", "jimmytest");
+                    result = db.collection("user").where(query).get();
+
+                } catch (TcbException e) {
+                    Log.d("DBWrite", "Db write success");
+                }
+            }
+        }).start();
+    }
+
 }

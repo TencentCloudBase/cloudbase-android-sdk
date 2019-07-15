@@ -199,8 +199,8 @@ public class Query {
      * @return
      * @throws TcbException
      */
-    public JSONObject update(@NonNull HashMap<String, Object> data) throws TcbException {
-        if (data.containsKey("_id")) {
+    public JSONObject update(@NonNull JSONObject data) throws TcbException {
+        if (data.has("_id")) {
             throw new TcbException(Code.INVALID_PARAM, "不能更新_id的值");
         }
 
