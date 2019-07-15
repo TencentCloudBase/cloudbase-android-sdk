@@ -61,7 +61,7 @@ public class BaseRequest {
         params.put("action", action);
         params.put("env", config.envName);
         params.put("sdk_version", VERSION);
-        params.put("loginType", "WECHAT-PUBLIC");
+        params.put("loginType", "WECHAT-OPEN");
 
         // 处理参数
         timeout = timeout != 0 ? timeout : (config.timeout != 0 ? config.timeout :

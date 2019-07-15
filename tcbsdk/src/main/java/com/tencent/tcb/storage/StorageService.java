@@ -61,6 +61,8 @@ public class StorageService {
         String token = data.getString("token");
         String cosFileId = data.getString("cosFileId");
         String sign = data.getString("authorization");
+        String requestId = metaData.getString("requestId");
+        String fileId = data.getString("fileId");
 
         final OkHttpClient client = new OkHttpClient();
 
@@ -112,7 +114,10 @@ public class StorageService {
             response = client.newCall(request).execute();
 
             if (response.isSuccessful()) {
-                listener.onSuccess();
+                JSONObject result = new JSONObject();
+                result.put("requestId", requestId);
+                result.put("fileId", fileId);
+                listener.onSuccess(result);
             } else {
                 throw new TcbException("RES_ERR", "upload error code " + response);
             }
@@ -146,6 +151,9 @@ public class StorageService {
     public void downloadFile(String fileId, String tempFilePath, FileTransportListener listener) {
         String tempDownUrl = "";
         try {
+            if (fileId == null || fileId.isEmpty()) {
+                throw new TcbException(Code.EMPTY_PARAM, "fileId cannot be empty");
+            }
             String[] fileList = {fileId};
             JSONObject tempUrlRes = getTempFileURL(fileList);
             JSONObject file = tempUrlRes.getJSONArray("fileList").getJSONObject(0);
@@ -198,7 +206,7 @@ public class StorageService {
 
             fileOutputStream.flush();
             // 下载完成
-            listener.onSuccess();
+            listener.onSuccess(null);
         } catch (TcbException e) {
             listener.onFailed(e);
         } catch (IOException e) {
@@ -212,12 +220,13 @@ public class StorageService {
                     fileOutputStream.close();
                 }
             } catch (IOException e) {
-                listener.onFailed(new TcbException(Code.IO_ERR,"stream close false " + e.toString() ));
+                listener.onFailed(new TcbException(Code.IO_ERR,
+                        "stream close false " + e.toString()));
             }
         }
     }
 
-    public JSONObject deleteFile(String[] fileList) throws JSONException, TcbException {
+    public JSONObject deleteFile(String[] fileList) throws TcbException {
         String deleteFileAction = "storage.batchDeleteFile";
 
         if (fileList.length < 1) {
@@ -225,7 +234,7 @@ public class StorageService {
         }
 
         for (String s : fileList) {
-            if (s.isEmpty()) {
+            if (s == null || s.isEmpty()) {
                 throw new TcbException("PARAM_INVALID", "fileList must not be empty");
             }
         }
@@ -234,18 +243,22 @@ public class StorageService {
         params.put("fileid_list", fileList);
         JSONObject res = request.send(deleteFileAction, params);
 
-        if (res.has("code")) {
-            throw new TcbException(res.getString("code"), res.getString("message"));
-        } else {
-            JSONObject result = new JSONObject();
-            JSONObject data = result.getJSONObject("data");
-            result.put("requestId", result.getString("requestId"));
-            result.put("fileList", result.getJSONArray("delete_list"));
-            return result;
+        try {
+            if (res.has("code")) {
+                throw new TcbException(res.getString("code"), res.getString("message"));
+            } else {
+                JSONObject result = new JSONObject();
+                JSONObject data = res.getJSONObject("data");
+                result.put("requestId", res.getString("requestId"));
+                result.put("fileList", data.getJSONArray("delete_list"));
+                return result;
+            }
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.toString() + res.toString());
         }
     }
 
-    public JSONObject getTempFileURL(String[] fileList) throws TcbException, JSONException {
+    public JSONObject getTempFileURL(String[] fileList) throws TcbException {
         if (fileList.length < 1) {
             throw new TcbException("PARAM_INVALID", "fileList must not be empty");
         }
@@ -270,20 +283,23 @@ public class StorageService {
             throw new TcbException("RES_NULL", "get a null response");
         }
 
-        // 存在 code，说明返回值存在异常
-        if (res.has("code")) {
-            throw new TcbException(res.getString("code"), res.getString("message"));
-        } else {
-            JSONObject result = new JSONObject();
-            JSONObject data = res.getJSONObject("data");
-            result.put("requestId", res.getString("requestId"));
-            result.put("fileList", data.getJSONArray("download_list"));
-            return result;
+        try {
+            // 存在 code，说明返回值存在异常
+            if (res.has("code")) {
+                throw new TcbException(res.getString("code"), res.getString("message"));
+            } else {
+                JSONObject result = new JSONObject();
+                JSONObject data = res.getJSONObject("data");
+                result.put("requestId", res.getString("requestId"));
+                result.put("fileList", data.getJSONArray("download_list"));
+                return result;
+            }
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.toString());
         }
     }
 
-    public JSONObject getTempFileURL(ArrayList<FileMeta> fileList) throws TcbException,
-            JSONException {
+    public JSONObject getTempFileURL(ArrayList<FileMeta> fileList) throws TcbException {
 
         if (fileList.isEmpty()) {
             throw new TcbException("PARAM_INVALID", "fileList must not be empty");
@@ -303,19 +319,23 @@ public class StorageService {
 
         JSONObject res = request.send(getTempURLAction, params);
 
-        // 存在 code，说明返回值存在异常
-        if (res.has("code")) {
-            throw new TcbException(res.getString("code"), res.getString("message"));
-        } else {
-            JSONObject result = new JSONObject();
-            JSONObject data = res.getJSONObject("data");
-            result.put("requestId", res.getString("requestId"));
-            result.put("fileList", data.getJSONArray("download_list"));
-            return result;
+        try {
+            // 存在 code，说明返回值存在异常
+            if (res.has("code")) {
+                throw new TcbException(res.getString("code"), res.getString("message"));
+            } else {
+                JSONObject result = new JSONObject();
+                JSONObject data = res.getJSONObject("data");
+                result.put("requestId", res.getString("requestId"));
+                result.put("fileList", data.getJSONArray("download_list"));
+                return result;
+            }
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.toString());
         }
     }
 
-    public JSONObject getUploadMetadata(String cloudPath) throws JSONException, TcbException {
+    public JSONObject getUploadMetadata(String cloudPath) throws TcbException {
         final String action = "storage.getUploadMetadata";
         HashMap<String, Object> requestParams = new HashMap<String, Object>();
         requestParams.put("path", cloudPath);
@@ -323,7 +343,7 @@ public class StorageService {
 
         // 存在 code，说明返回值存在异常
         if (res.has("code")) {
-            throw new TcbException(res.getString("code"), res.getString("message"));
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             return res;
         }
@@ -331,7 +351,7 @@ public class StorageService {
 
     public interface FileTransportListener {
         // 传输成功
-        void onSuccess();
+        void onSuccess(JSONObject result);
 
         // 传输进度
         void onProgress(int progress);
