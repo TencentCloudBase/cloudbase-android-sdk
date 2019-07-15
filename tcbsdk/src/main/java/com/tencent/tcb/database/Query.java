@@ -9,6 +9,7 @@ import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,9 +58,62 @@ public class Query {
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
 
-        // todo:插入更多的params
-        this.request.send("database.queryDocument", params);
-        return null;
+        // 处理排序条件
+        ArrayList<HashMap<String, String>> cloneFieldOrders = new ArrayList<>();
+        for (HashMap<String, String> order : this.fieldOrders)  {
+            cloneFieldOrders.add(order);
+        }
+        if (cloneFieldOrders.size() > 0) {
+            params.put("order", cloneFieldOrders);
+        }
+
+        // 处理过滤条件
+        params.put("query", this.fieldFilters);
+
+        // 处理查询条件
+        if (this.queryOptions.containsKey("offset")) {
+            int offset = (int)this.queryOptions.get("offset");
+            if (offset > 0) {
+                params.put("offset", offset);
+            }
+        }
+        if (this.queryOptions.containsKey("limit")) {
+            int limit = (int)this.queryOptions.get("limit");
+            params.put("limit", Math.min(limit, 100));
+        } else {
+            params.put("limit", 100);
+        }
+        if (this.queryOptions.containsKey("projection")) {
+            params.put("projection", this.queryOptions.get("projection"));
+        }
+
+        JSONObject res = this.request.sendMidData("database.queryDocument", params);
+
+        if (res.has("code")) {
+            return res;
+        } else {
+            JSONObject result = new JSONObject();
+            try {
+                JSONArray documents = res.getJSONObject("data").getJSONArray("list");
+                documents = Util.formatResDocumentData(documents);
+
+                result.put("requestId", res.getString("requestId"));
+                result.put("data", documents);
+
+                if (res.has("TotalCount")) {
+                    result.put("TotalCount", res.getString("TotalCount"));
+                }
+                if (res.has("Limit")) {
+                    result.put("Limit", res.getString("Limit"));
+                }
+                if (res.has("Offset")) {
+                    result.put("Offset", res.getString("Offset"));
+                }
+            } catch (JSONException e) {
+                throw new TcbException(Code.JSON_ERR, e.getMessage());
+            }
+            return result;
+        }
     }
 
     public JSONObject count() throws TcbException {
