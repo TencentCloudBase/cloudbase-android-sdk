@@ -1,4 +1,4 @@
-package com.tencent.tcb.database.Geo;
+package com.tencent.tcb.database.Geos;
 
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Validate;
@@ -26,7 +26,7 @@ public class MultiPoint {
         JSONArray coordinates = new JSONArray();
         // 深拷贝
         for (Point point : this.points) {
-            JSONArray pointCoordinates = point.toJson().getJSONArray("coordinates");
+            JSONArray pointCoordinates = point.toJSON().getJSONArray("coordinates");
             JSONArray clonePointCordinates = new JSONArray();
             clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
             coordinates.put(clonePointCordinates);

@@ -1,4 +1,4 @@
-package com.tencent.tcb.database.Geo;
+package com.tencent.tcb.database.Geos;
 
 import androidx.annotation.NonNull;
 
@@ -30,7 +30,7 @@ public class LineString {
         JSONArray lineCoordinates = new JSONArray();
         for (Point point : this.points) {
             // 深拷贝
-            JSONArray pointCoordinates = point.toJson().getJSONArray("coordinates");
+            JSONArray pointCoordinates = point.toJSON().getJSONArray("coordinates");
             JSONArray clonePointCordinates = new JSONArray();
             clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
             lineCoordinates.put(clonePointCordinates);

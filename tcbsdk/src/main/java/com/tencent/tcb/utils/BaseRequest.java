@@ -22,6 +22,7 @@ public class BaseRequest {
     private static final String TCB_WEB_URL = "https://tcb-api.tencentcloudapi.com/web";
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
+    private static final String DATA_VERSION = "2019-06-01";
 
     private Config config;
 
@@ -61,7 +62,9 @@ public class BaseRequest {
         params.put("action", action);
         params.put("env", config.envName);
         params.put("sdk_version", VERSION);
+        params.put("dataVersion", DATA_VERSION);
         params.put("loginType", "WECHAT-OPEN");
+        String str = new JSONObject(params).toString();
 
         // 处理参数
         timeout = timeout != 0 ? timeout : (config.timeout != 0 ? config.timeout :

@@ -19,7 +19,7 @@ public class ServerDate {
         date.put("offset", this.offset);
 
         JSONObject result = new JSONObject();
-        result.put("date", date);
+        result.put("$date", date);
 
         return result;
     }

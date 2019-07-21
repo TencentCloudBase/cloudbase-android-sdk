@@ -206,6 +206,18 @@ public class WeixinAuth {
         api.sendReq(req);
     }
 
+    /**
+     * 微信登录
+     * 开发者调用
+     *
+     * @param code
+     * @param listener
+     */
+    public void loginWithCode(String code, LoginListener listener) {
+        this.code = code;
+        login(loginListener);
+    }
+
     // 清空存储数据，登出
     public void logout() {
         tcbStore.clear();

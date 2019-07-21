@@ -148,6 +148,33 @@ public class StorageService {
         }
     }
 
+    public void downloadFile(String fileId, FileTransportListener listener) {
+        try {
+            if (fileId == null || fileId.isEmpty()) {
+                throw new TcbException(Code.EMPTY_PARAM, "fileId cannot be empty");
+            }
+            String[] fileList = {fileId};
+            JSONObject tempUrlRes = getTempFileURL(fileList);
+            listener.onSuccess(tempUrlRes);
+        } catch (TcbException e) {
+            listener.onFailed(e);
+        }
+    }
+
+    public void downloadFile(String[] fileList, FileTransportListener listener) {
+        try {
+            for (String fileId : fileList) {
+                if (fileId == null || fileId.isEmpty()) {
+                    throw new TcbException(Code.EMPTY_PARAM, "fileId cannot be empty");
+                }
+            }
+            JSONObject tempUrlRes = getTempFileURL(fileList);
+            listener.onSuccess(tempUrlRes);
+        } catch (TcbException e) {
+            listener.onFailed(e);
+        }
+    }
+
     public void downloadFile(String fileId, String tempFilePath, FileTransportListener listener) {
         String tempDownUrl = "";
         try {
@@ -192,6 +219,9 @@ public class StorageService {
             inputStream = response.body().byteStream();
 
             File file = new File(tempFilePath);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             fileOutputStream = new FileOutputStream(file);
 
             long total = response.body().contentLength();

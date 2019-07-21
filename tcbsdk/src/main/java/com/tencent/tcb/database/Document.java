@@ -43,9 +43,16 @@ public class Document {
      * @throws TcbException
      */
     public JSONObject create(JSONObject data) throws TcbException {
+        // 格式化
+        try {
+            data = Format.dataFormat(data);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
-        params.put("data", Format.dataFormat(data));
+        params.put("data", data);
         if (this.id != null && !this.id.isEmpty()) {
             params.put("_id", this.id);
         }
@@ -91,6 +98,13 @@ public class Document {
             throw new TcbException(Code.DATABASE_REQUEST_FAILED, "update operator complicit");
         }
 
+        // 格式化
+        try {
+            data = Format.dataFormat(data);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
         params.put("multi", false);
@@ -131,12 +145,19 @@ public class Document {
             throw new TcbException(Code.INVALID_PARAM, "不能更新_id的值");
         }
 
+        // 格式化
+        try {
+            data = Format.dataFormat(data);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
         HashMap<String, String> query = new HashMap<>();
         query.put("_id", this.id);
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
-        params.put("data", Format.dataFormat(data));
+        params.put("data", data);
         params.put("query", query);
         params.put("multi", false);
         params.put("merge", true);

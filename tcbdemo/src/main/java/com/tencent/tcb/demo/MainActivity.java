@@ -3,14 +3,15 @@ package com.tencent.tcb.demo;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.tencent.tcb.auth.WeixinAuth;
+import com.tencent.tcb.database.Command;
 import com.tencent.tcb.database.Db;
-import com.tencent.tcb.function.FunctionService;
 import com.tencent.tcb.storage.StorageService;
 import com.tencent.tcb.auth.LoginListener;
 import com.tencent.tcb.utils.Config;
@@ -24,11 +25,6 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
     private Config config = null;
     WeixinAuth weixinAuth = null;
-    public String envName = "dev-97eb6c";
-    // 请使用微信开放平台移动应用 appId
-    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
-    public String appId = "wx9c4c30a432a38ebc";
-    public String domain = "http://jimmytest-088bef.tcb.qcloud.la";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,18 +40,47 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button button1 = (Button) findViewById(R.id.cloud_function_button);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, CloudFunctionActivity.class));
+            }
+        });
+
+        Button button2 = (Button) findViewById(R.id.cloud_storage_button);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, CloudStorageActivity.class));
+            }
+        });
+
+        Button button3 = (Button) findViewById(R.id.cloud_database_button);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, CloudDatabaseActivity.class));
+            }
+        });
+
         final Context context = this;
-        config = new Config(envName, appId, domain);
+        config = Constants.config();
         weixinAuth = WeixinAuth.getInstance(this, config);
         // this.invokeFunctionTest(this);
         // this.mockLogin();
         // this.fileTest(this);
-        this.downLoadFileTest(this);
+        // this.downLoadFileTest(this);
         // this.deleteFileTest(this);
         // this.uploadFileTest(this);
         // this.dbAddTest(this);
         // this.dbCountTest(this);
         // this.dbQueryTest(this);
+        // this.dbQueryCommandTest(this);
+        // this.dbOrderTest(this);
+        // this.dbDocTest(this);
+        // this.dbServerDateTest(this);
+        // this.dbGeoTest(this);
     }
 
     // 拉起微信登录
@@ -64,7 +89,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final String LogTag = "WeixinLogin";
-                Log.d("deng", "de");
+
+                /**
+                 * 如果应用已经实现了微信登录
+                 * 这里建议使用weixinAuth.loginWithCode 接口
+                 */
                 weixinAuth.login(new LoginListener() {
                     @Override
                     public void onSuccess() {
@@ -76,24 +105,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(LogTag, e.toString());
                     }
                 });
-            }
-        }).start();
-    }
-
-    // 调用函数测试
-    private void invokeFunctionTest(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FunctionService functionService = new FunctionService(config, context);
-                String LogTag = "InvokeFunctionTest";
-
-                try {
-                    JSONObject res = functionService.callFunction("test-scf");
-                    Log.d(LogTag, res.toString());
-                } catch (TcbException e) {
-                    Log.e(LogTag, e.toString());
-                }
             }
         }).start();
     }
@@ -134,88 +145,23 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void uploadFileTest(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                StorageService storage = new StorageService(config, context);
-                String root = getApplicationInfo().dataDir;
-                final String LogTag = "UploadFileTest";
-
-                storage.uploadFile(
-                        "books/cn.pdf",
-                        root + "/files" + "/ddcn.pdf",
-                        new StorageService.FileTransportListener() {
-                            @Override
-                            public void onSuccess(JSONObject result) {
-
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                Log.d(LogTag, String.valueOf(progress));
-                            }
-
-                            @Override
-                            public void onFailed(TcbException e) {
-                                Log.e(LogTag, e.toString());
-                            }
-                        });
-
-            }
-        }).start();
-    }
-
-    private void downLoadFileTest(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                StorageService storage = new StorageService(config, context);
-                String root = getApplicationInfo().dataDir;
-                String LogTag = "DownFileTest";
-
-                Log.d("run", "run");
-
-                storage.downloadFile(
-                        "cloud://dev-97eb6c.6465-dev-97eb6c/500.svg",
-                        "/data/data/com.tencent.tcb.demo/files/500.svg",
-                        new StorageService.FileTransportListener() {
-                            @Override
-                            public void onSuccess(JSONObject result) {
-                                // result 为 null
-                                Log.d("Ok", "Download success");
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                Log.d("Download", String.valueOf(progress));
-                            }
-
-                            @Override
-                            public void onFailed(TcbException e) {
-                                Log.e("failed", e.toString());
-                            }
-                        });
-            }
-        }).start();
-    }
-
     private void dbAddTest(final Context context) {
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                Db db = new Db(context, config);
+                Db db = new Db(config, context);
                 JSONObject result;
                 try {
                     JSONObject data = new JSONObject();
                     data.put("name", "jimmytest");
+                    data.put("age", 25);
                     result = db.collection("user").add(data);
                     Log.d("DbAdd", "Db add document success");
                 } catch (TcbException e) {
-                    Log.e("DbAdd", e.getMessage());
+                    Log.e("DbAdd", e.toString());
                 } catch (JSONException e) {
-                    Log.e("DbAdd", e.getMessage());
+                    Log.e("DbAdd", e.toString());
                 }
             }
         }).start();
@@ -226,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                Db db = new Db(context, config);
+                Db db = new Db(config, context);
                 JSONObject result;
                 try {
                     result = db.collection("user").count();
                     Log.d("DbCount", "Db count success");
                 } catch (TcbException e) {
-                    Log.e("DbCount", e.getMessage());
+                    Log.e("DbCount", e.toString());
                 }
             }
         }).start();
@@ -243,17 +189,186 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                Db db = new Db(context, config);
+                Db db = new Db(config, context);
                 JSONObject result;
                 try {
-//                    JSONObject query = new JSONObject();
-//                    query.put("name", "jimmytest");
-                    HashMap<String, Object> query = new HashMap<>();
+                    JSONObject query = new JSONObject();
                     query.put("name", "jimmytest");
                     result = db.collection("user").where(query).get();
+                    Log.d("DbQuery", "Db query success");
+                } catch (TcbException e) {
+                    Log.e("DbQuery", e.toString());
+                } catch (JSONException e) {
+                    Log.e("DbQuery", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void dbQueryCommandTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                Command cmd = db.command;
+                JSONObject result;
+                try {
+                    JSONObject query = new JSONObject();
+                    // age大于18
+                    query.put("age", cmd.gt(18));
+                    // age大于18并且小于30
+                    // query.put("age", cmd.and(cmd.gt(18), cmd.lt(30)));
+
+                    result = db.collection("user").where(query).get();
+                    Log.d("DbQueryCmd", "Db query cmd success:" + result.toString());
+                } catch (TcbException e) {
+                    Log.e("DbQueryCmd", e.toString());
+                } catch (JSONException e) {
+                    Log.e("DbQueryCmd", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void dbOrderTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                JSONObject result;
+                try {
+                    result = db.collection("user").orderBy("age", "asc").get();
+                    Log.d("DbQuery", "Db query success:" + result.toString());
+                } catch (TcbException e) {
+                    Log.e("DbQuery", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void dbFieldTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                JSONObject result;
+                try {
+                    HashMap<String, Boolean> fieldMap = new HashMap<>();
+                    fieldMap.put("age", true);
+
+                    result = db.collection("user").field(fieldMap).get();
+                    Log.d("DbFieldCmd", "Db field success:" + result.toString());
+                } catch (TcbException e) {
+                    Log.e("DbFieldCmd", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 文档操作
+     *
+     * @param context
+     */
+    private void dbDocTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                JSONObject result;
+                try {
+                    // 创建文档
+                    JSONObject data = new JSONObject();
+                    data.put("name", "jimmytest2");
+                    result = db.collection("user").add(data);
+                    Log.d("DbDoc", "Db doc create success: " + result.toString());
+
+                    // 解析docId
+                    String docId = result.getString("id");
+
+                    // 替换文档数据
+                    data.put("age", 28);
+                    result = db.collection("user").doc(docId).set(data);
+                    Log.d("DbDoc", "Db doc set success: " + result.toString());
+
+                    // 更新文档数据
+                    JSONObject data2 = new JSONObject();
+                    data2.put("age", 23);
+                    result = db.collection("user").doc(docId).update(data2);
+                    Log.d("DbDoc", "Db doc update success: " + result.toString());
+
+                    // 删除文档
+                    result = db.collection("user").doc(docId).remove();
+                    Log.d("DbDoc", "Db doc remove success: " + result.toString());
+                } catch (TcbException e) {
+                    Log.e("DbDoc", e.toString());
+                } catch (JSONException e) {
+                    Log.e("DbDoc", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 构造服务器时间
+     *
+     * @param context
+     */
+    private void dbServerDateTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                JSONObject result;
+                try {
+                    JSONObject data = new JSONObject();
+                    data.put("description", "eat an apple");
+                    data.put("createTime", db.serverDate());
+
+                    result = db.collection("user").add(data);
+                    Log.d("DbServerDateTest", "Db server data success:" + result.toString());
+                } catch (TcbException e) {
+                    Log.e("DbServerDateTest", e.toString());
+                } catch (JSONException e) {
+                    Log.e("DbServerDateTest", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    private void dbGeoTest(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Db db = new Db(config, context);
+                JSONObject result;
+                try {
+                    // 创建带有地理位置的数据
+                    JSONObject data = new JSONObject();
+                    data.put("description", "eat an apple");
+                    data.put("location", db.geo.point(113.323809, 23.097732));
+                    result = db.collection("tcb_android").add(data);
+                    Log.d("DbServerDateTest", "Db server data success:" + result.toString());
+
+                    // 按地理位置寻找
+                    JSONObject query = new JSONObject();
+                    query.put("location", db.command.geoNear(
+                            db.geo.point(113, 23),
+                            1000,
+                            5000));
+                    result = db.collection("tcb_android").where(query).get();
+                    Log.d("DbServerDateTest", "Db server data success:" + result.toString());
 
                 } catch (TcbException e) {
-                    Log.d("DBWrite", "Db write success");
+                    Log.e("DbServerDateTest", e.toString());
+                } catch (JSONException e) {
+                    Log.e("DbServerDateTest", e.toString());
                 }
             }
         }).start();

@@ -1,4 +1,4 @@
-package com.tencent.tcb.database.Geo;
+package com.tencent.tcb.database.Geos;
 
 import androidx.annotation.NonNull;
 

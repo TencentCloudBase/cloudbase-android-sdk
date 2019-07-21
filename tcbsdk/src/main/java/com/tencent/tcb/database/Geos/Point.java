@@ -1,6 +1,5 @@
-package com.tencent.tcb.database.Geo;
+package com.tencent.tcb.database.Geos;
 
-import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Validate;
 import com.tencent.tcb.utils.TcbException;
 
@@ -32,7 +31,7 @@ public class Point {
         this.latitude = latitude;
     }
 
-    public JSONObject toJson() throws JSONException {
+    public JSONObject toJSON() throws JSONException {
         JSONArray coordinates = new JSONArray();
         coordinates.put(this.longitude);
         coordinates.put(this.latitude);

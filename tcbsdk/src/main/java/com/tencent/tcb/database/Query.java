@@ -20,7 +20,7 @@ import java.util.Map;
 public class Query {
     protected Db db;
     protected String collName;
-    private HashMap<String, Object> fieldFilters;
+    private JSONObject fieldFilters;
     private ArrayList<HashMap<String, String>> fieldOrders;
     private HashMap<String, Object> queryOptions;
 
@@ -33,7 +33,7 @@ public class Query {
      * @param collName  - 集合名称
      */
     public Query(@NonNull Db db, @NonNull String collName) {
-        this(db, collName, new HashMap<String, Object>(), new ArrayList<HashMap<String, String>>(), new HashMap<String, Object>());
+        this(db, collName, new JSONObject(), new ArrayList<HashMap<String, String>>(), new HashMap<String, Object>());
     }
 
     /**
@@ -45,7 +45,7 @@ public class Query {
      * @param fieldOrders   - 排序条件
      * @param queryOptions  - 查询条件
      */
-    public Query(@NonNull Db db, @NonNull String collName, @NonNull HashMap<String, Object> fieldFilters, @NonNull ArrayList<HashMap<String, String>> fieldOrders, @NonNull HashMap<String, Object> queryOptions) {
+    public Query(@NonNull Db db, @NonNull String collName, @NonNull JSONObject fieldFilters, @NonNull ArrayList<HashMap<String, String>> fieldOrders, @NonNull HashMap<String, Object> queryOptions) {
         this.db = db;
         this.collName = collName;
         this.fieldFilters = fieldFilters;
@@ -144,8 +144,15 @@ public class Query {
      * @return
      * @throws TcbException
      */
-    public Query where(HashMap<String, Object> query) throws TcbException {
-        return new Query(this.db, this.collName, Format.dataFormat(query),this.fieldOrders, this.queryOptions);
+    public Query where(JSONObject query) throws TcbException {
+        // 格式化
+        try {
+            query = Format.dataFormat(query);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
+        return new Query(this.db, this.collName, query, this.fieldOrders, this.queryOptions);
     }
 
     /**
@@ -204,13 +211,20 @@ public class Query {
             throw new TcbException(Code.INVALID_PARAM, "不能更新_id的值");
         }
 
+        // 格式化
+        try {
+            data = Format.dataFormat(data);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
         params.put("query", this.fieldFilters);
         params.put("multi", true);
         params.put("merge", true);
         params.put("upsert", false);
-        params.put("data", Format.dataFormat(data));
+        params.put("data", data);
         params.put("interfaceCallSource", "BATCH_UPDATE_DOC");
 
         JSONObject res = request.sendMidData("database.updateDocument", params);
@@ -265,7 +279,7 @@ public class Query {
             Log.w("Database.Query", "`offset`, `limit` and `projection` are not supported in remove() operation");
         }
 
-        if (this.fieldFilters.size() > 0) {
+        if (this.fieldOrders.size() > 0) {
             Log.w("Database.Query", "`orderBy` is not supported in remove() operation");
         }
 

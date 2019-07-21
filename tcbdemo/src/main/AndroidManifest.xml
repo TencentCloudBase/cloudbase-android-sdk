@@ -25,6 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CloudFunctionActivity">
+        </activity>
+        <activity android:name=".CloudStorageActivity">
+        </activity>
+        <activity android:name=".CloudDatabaseActivity">
+        </activity>
     </application>
 
 </manifest>
