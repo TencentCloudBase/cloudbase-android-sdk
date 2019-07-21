@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+// todo:
 public class Util {
     public static JSONArray formatResDocumentData(@NonNull JSONArray documents) throws TcbException {
         JSONArray formatDocuments = new JSONArray();

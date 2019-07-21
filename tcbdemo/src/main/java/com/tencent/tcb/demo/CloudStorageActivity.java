@@ -24,8 +24,12 @@ import androidx.core.app.ActivityCompat;
 
 import com.tencent.tcb.storage.StorageService;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
+import com.tencent.tcb.utils.TcbStorageListener;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class CloudStorageActivity extends AppCompatActivity {
     private final String LogTag = "CloudStorage";
@@ -34,6 +38,7 @@ public class CloudStorageActivity extends AppCompatActivity {
     private Handler uiHandler;
     private StorageService storage;
     private String fileId;
+    private String fileName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +49,7 @@ public class CloudStorageActivity extends AppCompatActivity {
         resultImage = (ImageView) findViewById(R.id.download_Image);
         uiHandler = new Handler();
         storage = new StorageService(Constants.config(), this);
+        fileName = "test" + (int)(Math.random() * 1000000) + ".svg";
 
         Button uploadButton = (Button) findViewById(R.id.upload_button);
         Button downloadButton = (Button) findViewById(R.id.download_button);
@@ -88,38 +94,42 @@ public class CloudStorageActivity extends AppCompatActivity {
      * 云存储上传文件
      */
     private void uploadFile(final String localPath) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                storage.uploadFile(
-                        "test.svg",
-                        localPath,
-                        new StorageService.FileTransportListener() {
-                            @Override
-                            public void onSuccess(final JSONObject result) {
-                                // 打印结果
-                                uiHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        resultText.setText("上传成功：" + result.toString());
-                                    }
-                                });
-                                fileId = result.optString("fileId");
-                            }
+            storage.uploadFileAsync(
+                    fileName,
+                    localPath,
+                    new TcbStorageListener() {
+                        @Override
+                        public void onSuccess(final JSONObject result) {
+                            // 打印结果
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    resultText.setText("上传成功：" + result.toString());
+                                    resultImage.setImageBitmap(null);
+                                }
+                            });
+                            fileId = result.optString("fileId");
+                        }
 
-                            @Override
-                            public void onProgress(int progress) {
-                                Log.d(LogTag, String.valueOf(progress));
-                            }
+                        @Override
+                        public void onProgress(int progress) {
+                            Log.d(LogTag, String.valueOf(progress));
+                        }
 
-                            @Override
-                            public void onFailed(TcbException e) {
-                                Log.e(LogTag, e.toString());
-                            }
-                        });
-
-            }
-        }).start();
+                        @Override
+                        public void onFailed(final TcbException e) {
+                            // 打印结果
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    resultText.setText("上传失败：" + e.toString());
+                                    fileId = "";
+                                    resultImage.setImageBitmap(null);
+                                }
+                            });
+                            Log.e(LogTag, e.toString());
+                        }
+                    });
     }
 
     /**
@@ -131,40 +141,37 @@ public class CloudStorageActivity extends AppCompatActivity {
             return;
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // 设置下载图片的地址
-                final String downloadFIlePath = "/data/data/com.tencent.tcb.demo/files/test.svg";
 
-                storage.downloadFile(
-                        fileId,
-                        downloadFIlePath,
-                        new StorageService.FileTransportListener() {
-                            @Override
-                            public void onSuccess(final JSONObject result) {
-                                // 显示图片
-                                uiHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Bitmap bitmap = BitmapFactory.decodeFile(downloadFIlePath);
-                                        resultImage.setImageBitmap(bitmap);
-                                    }
-                                });
-                            }
+        // 设置下载图片的地址
+        final String downloadFIlePath = "/data/data/com.tencent.tcb.demo/files/" + fileName;
 
+        storage.downloadFileAsync(
+                fileId,
+                downloadFIlePath,
+                new TcbStorageListener() {
+                    @Override
+                    public void onSuccess(final JSONObject result) {
+                        // 显示图片
+                        uiHandler.post(new Runnable() {
                             @Override
-                            public void onProgress(int progress) {
-                                Log.d(LogTag, String.valueOf(progress));
-                            }
-
-                            @Override
-                            public void onFailed(TcbException e) {
-                                Log.e(LogTag, e.toString());
+                            public void run() {
+                                resultText.setText("下载成功。");
+                                Bitmap bitmap = BitmapFactory.decodeFile(downloadFIlePath);
+                                resultImage.setImageBitmap(bitmap);
                             }
                         });
-            }
-        }).start();
+                    }
+
+                    @Override
+                    public void onProgress(int progress) {
+                        Log.d(LogTag, String.valueOf(progress));
+                    }
+
+                    @Override
+                    public void onFailed(TcbException e) {
+                        Log.e(LogTag, e.toString());
+                    }
+                });
     }
 
     /**
@@ -176,39 +183,26 @@ public class CloudStorageActivity extends AppCompatActivity {
             return;
         }
 
-        new Thread(new Runnable() {
+        // 设置下载图片的地址
+        String[] fieldIdArr = {fileId};
+        storage.getTempFileURLAsync(fieldIdArr, new TcbListener() {
             @Override
-            public void run() {
-                // 设置下载图片的地址
-                final String downloadFIlePath = "/data/data/com.tencent.tcb.demo/files/test.svg";
-
-                // 该接口也支持批量获取
-                storage.downloadFile(
-                        fileId,
-                        new StorageService.FileTransportListener() {
-                            @Override
-                            public void onSuccess(final JSONObject result) {
-                                // 显示图片
-                                uiHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        resultText.setText("获取下载地址成功：" + result.toString());
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                Log.d(LogTag, String.valueOf(progress));
-                            }
-
-                            @Override
-                            public void onFailed(TcbException e) {
-                                Log.e(LogTag, e.toString());
-                            }
-                        });
+            public void onSuccess(final JSONObject result) {
+                // 打印结果
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultText.setText("获取下载地址成功：" + result.toString());
+                        resultImage.setImageBitmap(null);
+                    }
+                });
             }
-        }).start();
+
+            @Override
+            public void onFailed(TcbException e) {
+                Log.e(LogTag, e.toString());
+            }
+        });
     }
 
     /**

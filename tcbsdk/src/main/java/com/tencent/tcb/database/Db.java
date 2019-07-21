@@ -2,6 +2,8 @@ package com.tencent.tcb.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Regexp.RegExp;
 import com.tencent.tcb.database.ServerDate.ServerDate;
@@ -37,8 +39,8 @@ public class Db {
         return new RegExp(regexp, options);
     }
 
-    public Collection collection(String collName) throws TcbException {
-        if (collName == null || collName.isEmpty()) {
+    public Collection collection(@NonNull String collName) throws TcbException {
+        if (collName.isEmpty()) {
             throw new TcbException(Code.EMPTY_PARAM, "Collection name is required");
         }
 

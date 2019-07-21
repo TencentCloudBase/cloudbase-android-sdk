@@ -6,6 +6,8 @@ import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
+import com.tencent.tcb.utils.TcbStorageListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +54,7 @@ public class StorageService {
     private void cosUploadFile(
             String cloudPath,
             final File file,
-            final FileTransportListener listener
+            final TcbStorageListener listener
     ) throws TcbException, JSONException {
         // 获取临时签名，上传 URL
         JSONObject metaData = getUploadMetadata(cloudPath);
@@ -127,7 +129,7 @@ public class StorageService {
         }
     }
 
-    public void uploadFile(String cloudPath, File file, FileTransportListener listener) {
+    public void uploadFile(String cloudPath, File file, TcbStorageListener listener) {
         try {
             cosUploadFile(cloudPath, file, listener);
         } catch (JSONException e) {
@@ -137,7 +139,7 @@ public class StorageService {
         }
     }
 
-    public void uploadFile(String cloudPath, String filePath, FileTransportListener listener) {
+    public void uploadFile(String cloudPath, String filePath, TcbStorageListener listener) {
         try {
             File file = new File(filePath);
             cosUploadFile(cloudPath, file, listener);
@@ -148,34 +150,25 @@ public class StorageService {
         }
     }
 
-    public void downloadFile(String fileId, FileTransportListener listener) {
-        try {
-            if (fileId == null || fileId.isEmpty()) {
-                throw new TcbException(Code.EMPTY_PARAM, "fileId cannot be empty");
+    public void uploadFileAsync(final String cloudPath, final File file, final TcbStorageListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                uploadFile(cloudPath, file, listener);
             }
-            String[] fileList = {fileId};
-            JSONObject tempUrlRes = getTempFileURL(fileList);
-            listener.onSuccess(tempUrlRes);
-        } catch (TcbException e) {
-            listener.onFailed(e);
-        }
+        }).start();
     }
 
-    public void downloadFile(String[] fileList, FileTransportListener listener) {
-        try {
-            for (String fileId : fileList) {
-                if (fileId == null || fileId.isEmpty()) {
-                    throw new TcbException(Code.EMPTY_PARAM, "fileId cannot be empty");
-                }
+    public void uploadFileAsync(final String cloudPath, final String filePath, final TcbStorageListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                uploadFile(cloudPath, filePath, listener);
             }
-            JSONObject tempUrlRes = getTempFileURL(fileList);
-            listener.onSuccess(tempUrlRes);
-        } catch (TcbException e) {
-            listener.onFailed(e);
-        }
+        }).start();
     }
 
-    public void downloadFile(String fileId, String tempFilePath, FileTransportListener listener) {
+    public void downloadFile(String fileId, String tempFilePath, TcbStorageListener listener) {
         String tempDownUrl = "";
         try {
             if (fileId == null || fileId.isEmpty()) {
@@ -256,6 +249,15 @@ public class StorageService {
         }
     }
 
+    public void downloadFileAsync(final String fileId, final String tempFilePath, final TcbStorageListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                downloadFile(fileId, tempFilePath, listener);
+            }
+        }).start();
+    }
+
     public JSONObject deleteFile(String[] fileList) throws TcbException {
         String deleteFileAction = "storage.batchDeleteFile";
 
@@ -286,6 +288,20 @@ public class StorageService {
         } catch (JSONException e) {
             throw new TcbException(Code.JSON_ERR, e.toString() + res.toString());
         }
+    }
+
+    public void deleteFileAsync(final String[] fileList, final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = deleteFile(fileList);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     public JSONObject getTempFileURL(String[] fileList) throws TcbException {
@@ -365,7 +381,35 @@ public class StorageService {
         }
     }
 
-    public JSONObject getUploadMetadata(String cloudPath) throws TcbException {
+    public void getTempFileURLAsync(final String[] fileList, final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = getTempFileURL(fileList);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
+    }
+
+    public void getTempFileURLAsync(final ArrayList<FileMeta> fileList, final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = getTempFileURL(fileList);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
+    }
+
+    private JSONObject getUploadMetadata(String cloudPath) throws TcbException {
         final String action = "storage.getUploadMetadata";
         HashMap<String, Object> requestParams = new HashMap<String, Object>();
         requestParams.put("path", cloudPath);
@@ -377,17 +421,6 @@ public class StorageService {
         } else {
             return res;
         }
-    }
-
-    public interface FileTransportListener {
-        // 传输成功
-        void onSuccess(JSONObject result);
-
-        // 传输进度
-        void onProgress(int progress);
-
-        // 传输失败
-        void onFailed(TcbException e);
     }
 }
 

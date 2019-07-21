@@ -7,6 +7,7 @@ import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +43,7 @@ public class Document {
      * @return
      * @throws TcbException
      */
-    public JSONObject create(JSONObject data) throws TcbException {
+    public JSONObject create(@NonNull JSONObject data) throws TcbException {
         // 格式化
         try {
             data = Format.dataFormat(data);
@@ -60,7 +61,7 @@ public class Document {
         JSONObject res = this.request.sendMidData("database.addDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -71,6 +72,25 @@ public class Document {
             }
             return result;
         }
+    }
+
+    /**
+     * 创建一篇文档（异步）
+     *
+     * @param listener
+     */
+    public void createAsync(@NonNull final JSONObject data, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = create(data);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -119,7 +139,7 @@ public class Document {
         JSONObject res = this.request.sendMidData("database.updateDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -131,6 +151,29 @@ public class Document {
             }
             return result;
         }
+    }
+
+    /**
+     * 创建或添加数据（异步）
+     *
+     * 如果文档ID不存在，则创建该文档并插入数据，根据返回数据的 upserted_id 判断
+     * 添加数据的话，根据返回数据的 set 判断影响的行数
+     *
+     * @param data
+     * @param listener
+     */
+    public void setAsync(@NonNull final JSONObject data, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = set(data);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -167,7 +210,7 @@ public class Document {
         JSONObject res = this.request.sendMidData("database.updateDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -179,6 +222,26 @@ public class Document {
             }
             return result;
         }
+    }
+
+    /**
+     * 更新数据（异步）
+     *
+     * @param data
+     * @param listener
+     */
+    public void updateAsync(@NonNull final JSONObject data, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = update(data);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -199,7 +262,7 @@ public class Document {
         JSONObject res = this.request.sendMidData("database.deleteDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -210,6 +273,25 @@ public class Document {
             }
             return result;
         }
+    }
+
+    /**
+     * 删除文档（异步）
+     *
+     * @param listener
+     */
+    public void removeAsync(@NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = remove();
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     public JSONObject get() throws TcbException {
@@ -225,7 +307,7 @@ public class Document {
         JSONObject res = this.request.send("database.queryDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -249,6 +331,20 @@ public class Document {
             }
             return result;
         }
+    }
+
+    public void getAsync(@NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = get();
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**

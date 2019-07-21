@@ -2,6 +2,8 @@ package com.tencent.tcb.function;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,6 +11,7 @@ import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
 
 import java.util.HashMap;
 
@@ -35,6 +38,34 @@ public class FunctionService {
             throw new TcbException("INVALID_PARAM", "function name must not be empty");
         }
         return internalCallFunction(name, data);
+    }
+
+    public void callFunctionAsync(@NonNull final String name, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = callFunction(name);
+                        listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
+    }
+
+    public void callFunctionAsync(@NonNull final String name, @NonNull final JSONObject data, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = callFunction(name, data);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     private JSONObject internalCallFunction(String name, JSONObject requestData) throws TcbException {

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.tencent.tcb.function.FunctionService;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +39,7 @@ public class CloudFunctionActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                invokeFunctionTest();
+                invokeFunction();
             }
         });
     }
@@ -56,31 +57,30 @@ public class CloudFunctionActivity extends AppCompatActivity {
      * }
      *
      */
-    private void invokeFunctionTest() {
-        new Thread(new Runnable() {
+    private void invokeFunction() {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("a", 1);
+            data.put("b", 2);
+        } catch (JSONException e) {
+            Log.e(LogTag, e.toString());
+        }
+
+        functionService.callFunctionAsync("sum", data, new TcbListener() {
             @Override
-            public void run() {
-
-                try {
-                    JSONObject data = new JSONObject();
-                    data.put("a", 1);
-                    data.put("b", 2);
-
-                    final JSONObject res = functionService.callFunction("sum", data);
-                    uiHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            resultText.setText("函数执行结果: " + res.toString());
-                        }
-                    });
-                } catch (TcbException e) {
-                    Log.e(LogTag, e.toString());
-                } catch (JSONException e) {
-                    Log.e(LogTag, e.toString());
-                }
+            public void onSuccess(final JSONObject result) {
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultText.setText("函数执行结果: " + result.toString());
+                    }
+                });
             }
-        }).start();
+
+            @Override
+            public void onFailed(TcbException e) {
+                Log.e(LogTag, e.toString());
+            }
+        });
     }
-
-
 }

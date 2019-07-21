@@ -1,6 +1,7 @@
-package com.tencent.tcb.database;
+package com.tencent.tcb.database.Utils;
 
 import com.tencent.tcb.constants.Code;
+import com.tencent.tcb.database.Constants;
 import com.tencent.tcb.utils.TcbException;
 
 import java.util.Arrays;

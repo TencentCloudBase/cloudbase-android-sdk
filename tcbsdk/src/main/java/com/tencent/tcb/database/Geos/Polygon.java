@@ -3,7 +3,7 @@ package com.tencent.tcb.database.Geos;
 import androidx.annotation.NonNull;
 
 import com.tencent.tcb.constants.Code;
-import com.tencent.tcb.database.Validate;
+import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONArray;

@@ -6,8 +6,10 @@ import androidx.annotation.NonNull;
 
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Format;
+import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.Request;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,7 +92,7 @@ public class Query {
         JSONObject res = this.request.sendMidData("database.queryDocument", params);
 
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -116,6 +118,20 @@ public class Query {
         }
     }
 
+    public void getAsync(@NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = get();
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
+    }
+
     public JSONObject count() throws TcbException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("collectionName", this.collName);
@@ -123,7 +139,7 @@ public class Query {
 
         JSONObject res = this.request.sendMidData("database.queryDocument", params);
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -135,6 +151,20 @@ public class Query {
 
             return result;
         }
+    }
+
+    public void countAsync(@NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = count();
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -229,7 +259,7 @@ public class Query {
 
         JSONObject res = request.sendMidData("database.updateDocument", params);
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -242,6 +272,26 @@ public class Query {
 
             return  result;
         }
+    }
+
+    /**
+     * 发起请求批量更新文档（异步）
+     *
+     * @param data
+     * @param listener
+     */
+    public void updateAsync(@NonNull final JSONObject data, @NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = update(data);
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -290,7 +340,7 @@ public class Query {
 
         JSONObject res = this.request.sendMidData("database.deleteDocument", params);
         if (res.has("code")) {
-            return res;
+            throw new TcbException(res.optString("code"), res.optString("message"));
         } else {
             JSONObject result = new JSONObject();
             try {
@@ -303,5 +353,24 @@ public class Query {
             return  result;
         }
 
+    }
+
+    /**
+     * 条件删除文档（异步）
+     *
+     * @param listener
+     */
+    public void removeAsync(@NonNull final TcbListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject res = remove();
+                    listener.onSuccess(res);
+                } catch (TcbException e) {
+                    listener.onFailed(e);
+                }
+            }
+        }).start();
     }
 }
