@@ -409,7 +409,7 @@ public class StorageService {
         }).start();
     }
 
-    private JSONObject getUploadMetadata(String cloudPath) throws TcbException {
+    public JSONObject getUploadMetadata(String cloudPath) throws TcbException {
         final String action = "storage.getUploadMetadata";
         HashMap<String, Object> requestParams = new HashMap<String, Object>();
         requestParams.put("path", cloudPath);

@@ -8,6 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.tencent.tcb.storage.StorageService;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
+import com.tencent.tcb.utils.TcbStorageListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +69,7 @@ public class StorageServiceTest {
     // 测试文件上传
     @Test
     public void storageTest1() {
-        storage.uploadFile("txt/data.txt", filePath, new StorageService.FileTransportListener() {
+        storage.uploadFile("txt/data.txt", filePath, new TcbStorageListener() {
             @Override
             public void onSuccess(JSONObject result) {
                 Log.d(LogTag, result.toString());
@@ -145,7 +146,7 @@ public class StorageServiceTest {
         storage.downloadFile(
                 fileId,
                 filePath,
-                new StorageService.FileTransportListener() {
+                new TcbStorageListener() {
                     @Override
                     public void onSuccess(JSONObject result) {
                         // result 为 null
