@@ -48,11 +48,11 @@ public class Command {
         return this.queryOp("$lte", val);
     }
 
-    public QueryCommand in(@NonNull ArrayList<String> val) throws TcbException {
+    public QueryCommand in(@NonNull ArrayList<Object> val) throws TcbException {
         return this.queryOp("$in", val);
     }
 
-    public QueryCommand nin(@NonNull ArrayList<Number> val) throws TcbException {
+    public QueryCommand nin(@NonNull ArrayList<Object> val) throws TcbException {
         return this.queryOp("$nin", val);
     }
 
@@ -119,11 +119,15 @@ public class Command {
         return this.updateOp("$remove", null);
     }
 
+    public UpdateCommand inc (@NonNull Object val) throws TcbException {
+        return this.updateOp("$inc", val);
+    }
+
     public UpdateCommand mul (@NonNull Object val) throws TcbException {
         return this.updateOp("$mul", val);
     }
 
-    public UpdateCommand push (@NonNull Object val) throws TcbException {
+    public UpdateCommand push (@NonNull ArrayList<Object> val) throws TcbException {
         return this.updateOp("$push", val);
     }
 
@@ -135,7 +139,7 @@ public class Command {
         return this.updateOp("$shift", null);
     }
 
-    public UpdateCommand unshift (@NonNull Object val) throws TcbException {
+    public UpdateCommand unshift (@NonNull ArrayList<Object> val) throws TcbException {
         return this.updateOp("$unshift", val);
     }
 

@@ -78,8 +78,13 @@ public class CloudFunctionActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailed(TcbException e) {
-                Log.e(LogTag, e.toString());
+            public void onFailed(final TcbException e) {
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultText.setText("执行错误：" + e.toString());
+                    }
+                });
             }
         });
     }

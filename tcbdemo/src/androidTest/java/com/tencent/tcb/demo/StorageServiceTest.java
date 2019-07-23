@@ -33,17 +33,10 @@ public class StorageServiceTest {
     private final static String LogTag = "文件测试";
     private static String fileId = "";
 
-    public static String envName = "dev-97eb6c";
-    // 请使用微信开放平台移动应用 appId
-    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
-    public static String appId = "wx9c4c30a432a38ebc";
-    public static String domain = "http://jimmytest-088bef.tcb.qcloud.la";
-
-
     @BeforeClass
     public static void prepareTest() {
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        config = new Config(envName, appId, domain);
+        config = Constants.config();
         // 初始化 storage
         storage = new StorageService(config, context);
         String root = "/data/data/com.tencent.tcb.demo";
@@ -52,7 +45,7 @@ public class StorageServiceTest {
 
     // 创建一个测试用的文件
     public static String createFile(String root) {
-        String filePath = root + "/files" + "/data.txt";
+        String filePath = root + "/data.txt";
         File file = new File(filePath);
         String data = "Data to write";
         FileOutputStream out;

@@ -144,7 +144,7 @@ public class Document {
             JSONObject result = new JSONObject();
             try {
                 result.put("requestId", res.getString("requestId"));
-                result.put("updated", res.getJSONObject("data").getString("updated"));
+                result.put("updated", res.getJSONObject("data").getInt("updated"));
                 result.put("upsertedId", res.getJSONObject("data").getString("upserted_id"));
             } catch (JSONException e) {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());
@@ -215,7 +215,7 @@ public class Document {
             JSONObject result = new JSONObject();
             try {
                 result.put("requestId", res.getString("requestId"));
-                result.put("updated", res.getJSONObject("data").getString("updated"));
+                result.put("updated", res.getJSONObject("data").getInt("updated"));
                 result.put("upsertedId", res.getJSONObject("data").getString("upserted_id"));
             } catch (JSONException e) {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());
@@ -314,17 +314,19 @@ public class Document {
                 JSONArray documents = res.getJSONObject("data").getJSONArray("list");
                 documents = Util.formatResDocumentData(documents);
 
+                JSONObject data = res.getJSONObject("data");
+
                 result.put("requestId", res.getString("requestId"));
                 result.put("data", documents);
 
-                if (res.has("TotalCount")) {
-                    result.put("TotalCount", res.getString("TotalCount"));
+                if (data.has("total")) {
+                    result.put("total", data.getInt("total"));
                 }
-                if (res.has("Limit")) {
-                    result.put("Limit", res.getString("Limit"));
+                if (data.has("limit")) {
+                    result.put("limit", data.getInt("limit"));
                 }
-                if (res.has("Offset")) {
-                    result.put("Offset", res.getString("Offset"));
+                if (data.has("offset")) {
+                    result.put("offset", data.getInt("offset"));
                 }
             } catch (JSONException e) {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());

@@ -19,15 +19,10 @@ import static org.junit.Assert.*;
 public class FunctionServiceTest {
     private static Config config;
     private static Context context;
-    public static String envName = "dev-97eb6c";
-    // 请使用微信开放平台移动应用 appId
-    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
-    public static String appId = "wx9c4c30a432a38ebc";
-    public static String domain = "http://jimmytest-088bef.tcb.qcloud.la";
 
     @BeforeClass
     public static void prepare() {
-        config = new Config(envName, appId, domain);
+        config = Constants.config();
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
