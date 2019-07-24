@@ -34,7 +34,8 @@ public class DbCommandTest {
 
     public static void addDoc(int age) {
         JSONObject result;
-        String[] list = {"one"};
+        JSONArray list = new JSONArray();
+        list.put("one");
         try {
             JSONObject data = new JSONObject();
             data.put("name", "older");

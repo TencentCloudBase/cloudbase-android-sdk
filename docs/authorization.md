@@ -173,4 +173,4 @@ private void weixinLogin() {
 
 ### 微信登录兼容
 
-如果你的应用已经接入了微信登录，请，请在 WXEntryActivity 类中初始化 weixinAuth 实例，并在获取登录的 code 之后调用 `weixinAuth.callback(code)` 方法。
+如果你的应用已经接入了微信登录，请在 WXEntryActivity 类中初始化 weixinAuth 实例，并在获取登录的 code 之后调用 `weixinAuth.callback(code)` 方法。

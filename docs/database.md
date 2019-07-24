@@ -705,7 +705,7 @@ db.collection("comments").doc("comment-id").update(data);
 示例：
 
 ```java
-new db.Geo.Point(longitude, latitude);
+Point point = db.geo.point(longitude, latitude);
 ```
 
 ##### LineString
@@ -718,9 +718,9 @@ new db.Geo.Point(longitude, latitude);
 
 ```java
 ArrayList<Point> points = new ArrayList<>();
-points.add(new db.Geo.Point(lngA, latA));
-points.add(new db.Geo.Point(lngB, latB));
-new db.Geo.LineString(points)
+points.add(db.geo.point(lngA, latA));
+points.add(db.geo.point(lngB, latB));
+LineString line = db.geo.lineString(points)
 ```
 
 ##### Polygon
@@ -736,15 +736,15 @@ new db.Geo.LineString(points)
 ```java
 // 创建线
 ArrayList<Point> points = new ArrayList<>();
-points.add(new db.Geo.Point(lngA, latA));
-points.add(new db.Geo.Point(lngB, latB));
-LineStrign line1 = new db.Geo.LineString(points);
+points.add(db.geo.point(lngA, latA));
+points.add(db.geo.point(lngB, latB));
+LineStrign line1 = db.geo.lineString(points);
 // 创建多边形
 ArrayList<LineString> lines = new ArrayList<>();
 lines.add(line1);
 lines.add(line2);
 lines.add(line3);
-new db.Geo.Polygon(lines);
+Polygon polygon = db.geo.polygon(lines);
 ```
 
 ##### MultiPoint
@@ -757,9 +757,9 @@ new db.Geo.Polygon(lines);
 
 ```java
 ArrayList<Point> points = new ArrayList<>();
-points.add(new db.Geo.Point(lngA, latA));
-points.add(new db.Geo.Point(lngB, latB));
-new db.Geo.MultiPoint(points);
+points.add(db.geo.point(lngA, latA));
+points.add(db.geo.point(lngB, latB));
+MultiPoint multiPoint = db.geo.multiPoint(points);
 ```
 
 ##### MultiLineString
@@ -773,14 +773,14 @@ new db.Geo.MultiPoint(points);
 ```java
 // 线
 ArrayList<Point> points = new ArrayList<>();
-points.add(new db.Geo.Point(lngA, latA));
-points.add(new db.Geo.Point(lngB, latB));
-LineStrign line1 = new db.Geo.LineString(points);
+points.add(db.geo.point(lngA, latA));
+points.add(db.geo.point(lngB, latB));
+LineStrign line1 = db.geo.lineString(points);
 
 ArrayList<LineString> lines = new ArrayList<>();
 lines.add(line1);
 
-new db.Geo.MultiLineString(lines)
+MultiLineString multiLineString = db.geo.multiLineString(lines)
 ```
 
 ##### MultiPolygon
@@ -794,7 +794,7 @@ new db.Geo.MultiLineString(lines)
 ```java
 ArrayList<Polygon> polygons = new ArrayList<>();
 polygons.add(polygon);
-new db.Geo.MultiPolygon(polygons);
+MultiPolygon multiPolygon = db.geo.multiPolygon(polygons);
 ```
 
 #### GEO 操作符
@@ -814,7 +814,7 @@ db.command.geoNear(Point point, Number maxDistance, Number minDistance)
 ```java
 Command cmd = db.command;
 JSONObject data = new JSONObject();
-Point point = new db.Geo.Point(lngA, latA);
+Point point = db.geo.point(lngA, latA);
 data.put("location", db.command.geoNear(point, 1000, 0));
 db.collection("user").where(query).get();
 ```
@@ -834,7 +834,7 @@ db.command.geoWithin(Object geometry);
 
 ```java
 // 一个闭合的区域
-Polygon area = new db.Geo.Polygon(lines);
+Polygon area = db.geo.polygon(lines);
 
 Command cmd = db.command;
 JSONObject data = new JSONObject();
@@ -858,10 +858,10 @@ db.command.geoIntersects(Object geometry)
 
 ```java
 ArrayList<Point> points = new ArrayList<>();
-points.add(new db.Geo.Point(lngA, latA));
-points.add(new db.Geo.Point(lngB, latB));
+points.add(db.geo.point(lngA, latA));
+points.add(db.geo.point(lngB, latB));
 // 一条路径
-LineString line = new db.Geo.LineString(points);
+LineString line = db.geo.lineString(points);
 
 Command cmd = db.command;
 JSONObject data = new JSONObject();
