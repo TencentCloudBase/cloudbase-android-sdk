@@ -82,7 +82,7 @@ public class BaseRequest {
         requestBuilder.addHeader("Charset", "UTF8");
         requestBuilder.addHeader("Content-Type", "application/json");
         requestBuilder.addHeader("Accept", "application/json");
-        requestBuilder.addHeader("referer", config.domain);
+        requestBuilder.addHeader("Referer", "http://jimmytest-088bef.tcb.qcloud.la");
 
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             requestBuilder.addHeader(entry.getKey(), entry.getValue());

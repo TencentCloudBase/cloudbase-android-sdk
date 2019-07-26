@@ -57,13 +57,12 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     // 请使用微信开放平台移动应用 appId
     // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
     public String appId = "wx9c4cxxxxx";
-    public String domain = "https://youdomain.com";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 初始化配置
-        Config config = new Config(envName, appId, domain);
+        Config config = new Config(envName, appId);
         weixinAuth = WeixinAuth.getInstance(this, config);
         IWXAPI wxAPI = weixinAuth.getWxAPI();
 
@@ -142,11 +141,10 @@ import com.tencent.tcb.auth.LoginListener;
 
 String appId = "wx9c4c30a432a3xxxx"; // 微信开放平台 appId
 String envName = "envid"; // 云开发环境 Id
-String domain = "http://yourdomian.com";
 
 // 初始化
 Context context = this; // 安卓 Context
-final Config config = new Config(envName, appId, domain);
+final Config config = new Config(envName, appId);
 WeixinAuth weixinAuth = WeixinAuth.getInstance(context, config);
 
 private void weixinLogin() {

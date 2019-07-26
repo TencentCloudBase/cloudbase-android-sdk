@@ -1,6 +1,5 @@
 package com.tencent.tcb.demo;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -31,7 +30,7 @@ public class CloudDatabaseActivity extends AppCompatActivity {
 
         resultText = (TextView) findViewById(R.id.result_text);
         uiHandler = new Handler();
-        db = new Db(Constants.config(), this);
+        db = new Db(Constants.envName, this);
 
         Button addButton = (Button) findViewById(R.id.add_button);
         Button queryButton = (Button) findViewById(R.id.query_button);

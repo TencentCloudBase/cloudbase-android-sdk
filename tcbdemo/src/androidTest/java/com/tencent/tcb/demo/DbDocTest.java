@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.tcb.database.Db;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONArray;
@@ -22,9 +21,8 @@ public class DbDocTest {
 
     @BeforeClass
     public static void prepareTest() {
-        Config config = Constants.config();
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        db = new Db(config, context);
+        db = new Db(Constants.envName, context);
         addDoc(100);
     }
 

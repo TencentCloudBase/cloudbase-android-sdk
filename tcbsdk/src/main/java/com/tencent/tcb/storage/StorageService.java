@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.FileNameMap;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -38,17 +36,8 @@ public class StorageService {
 
     private final String getTempURLAction = "storage.batchGetDownloadUrl";
 
-    public StorageService(Config config, Context context) {
-        this.request = new Request(config, context);
-    }
-
-    private String guessMimeType(String path) {
-        FileNameMap fileNameMap = URLConnection.getFileNameMap();
-        String contentTypeFor = fileNameMap.getContentTypeFor(path);
-        if (contentTypeFor == null) {
-            contentTypeFor = "application/octet-stream";
-        }
-        return contentTypeFor;
+    public StorageService(String envName, Context context) {
+        this.request = new Request(new Config(envName), context);
     }
 
     private void cosUploadFile(

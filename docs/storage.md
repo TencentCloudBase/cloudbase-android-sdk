@@ -7,6 +7,19 @@
   - [删除文件](#删除文件)
 <!-- /TOC -->
 
+### 简单用法
+
+下面所有的方法均已挂载到 TCB 类，可以直接使用，如：
+
+```java
+TCB tcb = new TCB("envName", context);
+tcb.storage.uploadFile();
+
+// 等价于
+StorageService storage = new StorageService("envName", context);
+storage.uploadFile();
+```
+
 ### 上传文件
 
 - `public void uploadFile(String cloudPath, File file, TcbStorageListener listener)`
@@ -37,7 +50,7 @@ interface TcbStorageListener {
 示例代码
 
 ```java
-StorageService storage = new StorageService(config, context);
+StorageService storage = new StorageService("envName", context);
 storage.uploadFile("txt/data.txt", filePath, new TcbStorageListener() {
     @Override
     public void onSuccess(JSONObject result) {
@@ -84,7 +97,7 @@ interface TcbStorageListener {
 示例代码
 
 ```java
-StorageService storage = new StorageService(config, context);
+StorageService storage = new StorageService("envName", context);
 storage.downloadFile(
     fileId,
     filePath,
@@ -136,11 +149,10 @@ fileList
 ```java
 String fileId = "xxx";
 String[] fileList = {fileId};
-StorageService storage = new StorageService(config, context);
+StorageService storage = new StorageService("envName", context);
 
 try {
     JSONObject res = storage.deleteFile(fileList);
-    Log.d(LogTag, res.toString());
     String requestId = res.optString("requestId");
     JSONArray resFileList = res.getJSONArray("fileList");
     JSONObject file = resFileList.getJSONObject(0);
@@ -196,7 +208,7 @@ fileList
 ```java
 String fileId = "xxx";
 String[] fileList = {fileId};
-StorageService storage = new StorageService(config, context);
+StorageService storage = new StorageService("envName", context);
 
 try {
     JSONObject res = storage.getTempFileURL(fileList);

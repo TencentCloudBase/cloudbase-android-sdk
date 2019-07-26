@@ -1,13 +1,11 @@
 package com.tencent.tcb.demo;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.tcb.database.Db;
 import com.tencent.tcb.database.Regexp.RegExp;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONArray;
@@ -25,9 +23,8 @@ public class DbCollectionTest {
 
     @BeforeClass
     public static void prepareTest() {
-        Config config = Constants.config();
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        db = new Db(config, context);
+        db = new Db(Constants.envName, context);
         // 添加一个 doc
         addDoc(80);
     }
@@ -54,8 +51,8 @@ public class DbCollectionTest {
         JSONObject result;
         try {
             JSONObject data = new JSONObject();
-            data.put("name", "younger");
-            data.put("age", 25);
+            data.put("name", "older");
+            data.put("age", 80);
             result = db.collection("user").add(data);
             String requestId = result.optString("requestId");
             String id = result.optString("id");
@@ -181,7 +178,6 @@ public class DbCollectionTest {
             JSONObject query = new JSONObject();
             query.put("name", "older");
             result = db.collection("user").where(query).skip(1).get();
-            Log.d("测试", result.toString());
             String requestId = result.optString("requestId");
             int offset = result.optInt("offset");
             assertEquals(offset, 1);
@@ -189,7 +185,7 @@ public class DbCollectionTest {
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertEquals(data.length(), 0);
+            assertTrue(data.length() >= 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -212,6 +208,12 @@ public class DbCollectionTest {
             assertNotNull(result);
             assertFalse(requestId.isEmpty());
             assertFalse(id.isEmpty());
+
+            // 删除
+            result = db.collection("user").doc(id).remove();
+            int deleted = result.optInt("deleted");
+            assertNotNull(result);
+            assertTrue(deleted > 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -220,8 +222,8 @@ public class DbCollectionTest {
 
     }
 
-    // 正则表达式测试
-    // TODO: RegExp 逻辑未完成，暂时不测试 @Test
+    // 正则表达式匹配测试
+    @Test
     public void db2RegExpDateTest() {
         JSONObject result;
         try {
@@ -229,15 +231,36 @@ public class DbCollectionTest {
             RegExp regExp = db.regExp("^old", "i");
             query.put("name", regExp);
             db.collection("user").where(query).get();
-
             result = db.collection("user").where(query).get();
-            Log.d("测试", result.toString());
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
             assertTrue(data.length() > 0);
+        } catch (TcbException e) {
+            fail(e.toString());
+        } catch (JSONException e) {
+            fail(e.toString());
+        }
+    }
+
+    // 正则表达式不匹配测试
+    @Test
+    public void db2RegExp2DateTest() {
+        JSONObject result;
+        try {
+            JSONObject query = new JSONObject();
+            RegExp regExp = db.regExp("^young", "i");
+            query.put("name", regExp);
+            db.collection("user").where(query).get();
+            result = db.collection("user").where(query).get();
+            String requestId = result.optString("requestId");
+            JSONArray data = result.optJSONArray("data");
+            assertNotNull(result);
+            assertNotNull(data);
+            assertFalse(requestId.isEmpty());
+            assertEquals(data.length(), 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {

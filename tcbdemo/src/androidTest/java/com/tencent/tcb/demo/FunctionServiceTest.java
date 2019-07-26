@@ -6,7 +6,6 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.tcb.function.FunctionService;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONException;
@@ -17,24 +16,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class FunctionServiceTest {
-    private static Config config;
-    private static Context context;
+    private static FunctionService functionService;
 
     @BeforeClass
     public static void prepare() {
-        config = Constants.config();
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        functionService = new FunctionService(Constants.envName, context);
     }
 
     @Test(expected = TcbException.class)
     public void testEmptyParam() throws TcbException {
-        FunctionService functionService = new FunctionService(config, context);
         functionService.callFunction("");
     }
 
     @Test
     public void callFunction() {
-        FunctionService functionService = new FunctionService(config, context);
         try {
             JSONObject res = functionService.callFunction("test-scf");
             String requestId = res.getString("requestId");
@@ -51,7 +47,6 @@ public class FunctionServiceTest {
 
     @Test
     public void callFunctionWithData() {
-        FunctionService functionService = new FunctionService(config, context);
         try {
             JSONObject data = new JSONObject("{\"key\":\"test\"}");
             JSONObject res = functionService.callFunction("test-scf", data);

@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/hengechang/Desktop/tcbdemo.keystore')
+            storePassword 'tcbdemo'
+            keyAlias = 'tcbdemo'
+            keyPassword 'tcbdemo'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
 

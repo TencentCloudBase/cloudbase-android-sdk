@@ -1,6 +1,5 @@
 package com.tencent.tcb.demo;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.tencent.tcb.function.FunctionService;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 import com.tencent.tcb.utils.TcbListener;
 
@@ -20,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CloudFunctionActivity extends AppCompatActivity {
-    private final Config config = Constants.config();;
     private final String LogTag = "CloudFunction";
     private TextView resultText;
     private Handler uiHandler;
@@ -33,7 +30,7 @@ public class CloudFunctionActivity extends AppCompatActivity {
 
         resultText = (TextView) findViewById(R.id.function_result_text);
         uiHandler = new Handler();
-        functionService = new FunctionService(Constants.config(), this);
+        functionService = new FunctionService(Constants.envName, this);
 
         Button button = (Button) findViewById(R.id.test_function_button);
         button.setOnClickListener(new View.OnClickListener() {

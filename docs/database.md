@@ -2,6 +2,7 @@
 
 <!-- TOC -->
 - [数据库](#%e6%95%b0%e6%8d%ae%e5%ba%93)
+  - [简单用法](#%e7%ae%80%e5%8d%95%e7%94%a8%e6%b3%95)
   - [获取数据库的引用](#%e8%8e%b7%e5%8f%96%e6%95%b0%e6%8d%ae%e5%ba%93%e7%9a%84%e5%bc%95%e7%94%a8)
   - [获取集合的引用](#%e8%8e%b7%e5%8f%96%e9%9b%86%e5%90%88%e7%9a%84%e5%bc%95%e7%94%a8)
     - [集合 Collection](#%e9%9b%86%e5%90%88-collection)
@@ -60,12 +61,24 @@
 
 <!-- /TOC -->
 
+### 简单用法
+
+下面所有的方法均已挂载到 TCB 类，可以直接使用，如：
+
+```java
+TCB tcb = new TCB("envName", context);
+tcb.db.collection("user").doc("docId").get();
+
+// 等价于
+Db db = new Db("envName", context);
+db.collection("user").doc("docId").get();
+```
+
 ### 获取数据库的引用
 
 ```java
-Config config = Constants.config();
 Context context = this;
-Db db = new Db(config, context);
+Db db = new Db("envName", context);
 ```
 
 ### 获取集合的引用

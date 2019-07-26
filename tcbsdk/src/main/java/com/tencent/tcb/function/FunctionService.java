@@ -20,8 +20,8 @@ public class FunctionService {
     private Config config;
     private Context context;
 
-    public FunctionService(Config config, Context context) {
-        this.config = config;
+    public FunctionService(String envName, Context context) {
+        this.config = new Config(envName);
         this.context = context;
     }
 

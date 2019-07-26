@@ -29,8 +29,6 @@ import com.tencent.tcb.utils.TcbStorageListener;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 public class CloudStorageActivity extends AppCompatActivity {
     private final String LogTag = "CloudStorage";
     private TextView resultText;
@@ -48,7 +46,7 @@ public class CloudStorageActivity extends AppCompatActivity {
         resultText = (TextView) findViewById(R.id.upload_file_result);
         resultImage = (ImageView) findViewById(R.id.download_Image);
         uiHandler = new Handler();
-        storage = new StorageService(Constants.config(), this);
+        storage = new StorageService(Constants.envName, this);
         fileName = "test" + (int)(Math.random() * 1000000) + ".svg";
 
         Button uploadButton = (Button) findViewById(R.id.upload_button);

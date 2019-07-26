@@ -22,10 +22,32 @@
 
 示例代码
 
+通过 TCB 类使用：
+
 ```java
-FunctionService functionService = new FunctionService(config, context);
+// envName 为环境 Id
+import com.tencent.tcb.TCB;
+
+TCB tcb = new TCB("envName", context);
+
 try {
-    JSONObject data = new JSONObject("{\"key\":\"test\"}");
+    JSONObject data = new JSONObject();
+    data.put("key", "test");
+    JSONObject res = tcb.function.callFunction("test", data);
+} catch (TcbException e) {
+    fail(e.toString());
+}
+```
+
+通过 FunctionService 类使用：
+
+```java
+// envName 为环境 Id
+FunctionService functionService = new FunctionService("envName", context);
+
+try {
+    JSONObject data = new JSONObject();
+    data.put("key", "test");
     JSONObject res = functionService.callFunction("test", data);
     String requestId = res.getString("requestId");
     JSONObject result = res.getJSONObject("result");

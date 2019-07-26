@@ -16,8 +16,8 @@ public class Db {
     public Command command;
     public Geo geo;
 
-    public Db(Config config, Context context) {
-        this.config = config;
+    public Db(String envName, Context context) {
+        this.config = new Config(envName);
         this.context = context;
         this.command = new Command();
         this.geo = new Geo();
@@ -31,11 +31,11 @@ public class Db {
         return new ServerDate(offset);
     }
 
-    public RegExp regExp(String regexp) {
+    public RegExp regExp(String regexp) throws TcbException {
         return regExp(regexp, "");
     }
 
-    public RegExp regExp(String regexp, String options) {
+    public RegExp regExp(String regexp, String options) throws TcbException {
         return new RegExp(regexp, options);
     }
 

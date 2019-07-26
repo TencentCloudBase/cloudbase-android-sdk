@@ -1,17 +1,18 @@
 package com.tencent.tcb.demo;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.tcb.database.Command;
 import com.tencent.tcb.database.Db;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,16 +26,28 @@ public class DbCommandTest {
 
     @BeforeClass
     public static void prepareTest() {
-        Config config = Constants.config();
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        db = new Db(config, context);
+        db = new Db(Constants.envName, context);
         addDoc(80);
     }
+
+    @AfterClass
+    public static void clearDoc() {
+        try {
+            JSONObject result = db.collection("user").doc(docId).remove();
+            int deleted = result.optInt("deleted");
+            assertTrue(deleted > 0);
+        } catch (TcbException e) {
+            fail(e.toString());
+        }
+    }
+
 
     public static void addDoc(int age) {
         JSONObject result;
         JSONArray list = new JSONArray();
         list.put("one");
+        list.put("one-2");
         try {
             JSONObject data = new JSONObject();
             data.put("name", "older");
@@ -87,6 +100,7 @@ public class DbCommandTest {
             // age 不等于 80
             query.put("age", cmd.neq(80));
             result = db.collection("user").where(query).get();
+            Log.d("测试", result.toString());
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
@@ -332,7 +346,7 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 小于 25 或大于 100
+            // age 小于 60 或大于 100
             query.put("age", cmd.lt(60).or(cmd.gt(100)));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
@@ -563,6 +577,7 @@ public class DbCommandTest {
             JSONObject data = new JSONObject();
             data.put("list", cmd.shift());
             result = db.collection("user").doc(docId).update(data);
+            Log.d("测试", result.toString());
             assertNotNull(result);
             int count = result.optInt("updated");
             assertTrue(count > 0);

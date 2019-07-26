@@ -9,7 +9,8 @@ import org.junit.runners.Suite;
         StorageServiceTest.class,
         DbDocTest.class,
         DbCollectionTest.class,
-        DbCommandTest.class
+        DbCommandTest.class,
+        DbGeoTest.class
 })
 public class TcbTestSuit {
 }

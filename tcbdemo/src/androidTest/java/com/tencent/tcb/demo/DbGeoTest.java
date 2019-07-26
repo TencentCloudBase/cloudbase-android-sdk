@@ -1,7 +1,6 @@
 package com.tencent.tcb.demo;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -12,7 +11,6 @@ import com.tencent.tcb.database.Geos.MultiPoint;
 import com.tencent.tcb.database.Geos.MultiPolygon;
 import com.tencent.tcb.database.Geos.Point;
 import com.tencent.tcb.database.Geos.Polygon;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
 import org.json.JSONArray;
@@ -28,16 +26,15 @@ import static org.junit.Assert.*;
 
 public class DbGeoTest {
     private static Db db;
-    private static String docId;
     private static JSONObject doc;
 
     @BeforeClass
     public static void prepareTest() {
-        Config config = Constants.config();
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        db = new Db(config, context);
+        db = new Db(Constants.envName, context);
         doc = genDoc();
     }
+
 
     public static JSONObject genDoc() {
         try {
@@ -133,14 +130,13 @@ public class DbGeoTest {
         try {
             // 添加文档
             result = db.collection("user").add(doc);
-            docId = result.optString("id");
+            String docId = result.optString("id");
             assertFalse(docId.isEmpty());
 
             // 查询文档
             JSONObject query = new JSONObject();
             query.put("_id", docId);
             result = db.collection("user").where(query).get();
-            Log.d("测试", result.toString());
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertFalse(requestId.isEmpty());

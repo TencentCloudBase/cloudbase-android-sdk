@@ -1,12 +1,10 @@
 package com.tencent.tcb.demo;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.tcb.storage.StorageService;
-import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 import com.tencent.tcb.utils.TcbStorageListener;
 
@@ -27,18 +25,14 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class StorageServiceTest {
     private static String filePath = "";
-    private static Context context;
-    private static Config config;
     private static StorageService storage = null;
-    private final static String LogTag = "文件测试";
     private static String fileId = "";
 
     @BeforeClass
     public static void prepareTest() {
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        config = Constants.config();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         // 初始化 storage
-        storage = new StorageService(config, context);
+        storage = new StorageService(Constants.envName, context);
         String root = "/data/data/com.tencent.tcb.demo";
         filePath = createFile(root);
     }
@@ -65,7 +59,6 @@ public class StorageServiceTest {
         storage.uploadFile("txt/data.txt", filePath, new TcbStorageListener() {
             @Override
             public void onSuccess(JSONObject result) {
-                Log.d(LogTag, result.toString());
                 String requestId = result.optString("requestId");
                 fileId = result.optString("fileId");
                 assertFalse(requestId.isEmpty());
@@ -93,7 +86,6 @@ public class StorageServiceTest {
             JSONObject res = storage.getTempFileURL(fileList);
             String requestId = res.optString("requestId");
             JSONArray resFileList = res.getJSONArray("fileList");
-            Log.d(LogTag, res.toString());
             assertFalse(requestId.isEmpty());
             assertNotEquals(resFileList.length(), 0);
             JSONObject file = resFileList.getJSONObject(0);
@@ -166,7 +158,6 @@ public class StorageServiceTest {
 
         try {
             JSONObject res = storage.deleteFile(fileList);
-            Log.d(LogTag, res.toString());
             String requestId = res.optString("requestId");
             JSONArray resFileList = res.getJSONArray("fileList");
             assertFalse(requestId.isEmpty());

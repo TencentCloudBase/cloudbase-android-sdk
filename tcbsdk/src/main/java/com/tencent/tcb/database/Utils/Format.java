@@ -10,6 +10,7 @@ import com.tencent.tcb.database.Geos.MultiPoint;
 import com.tencent.tcb.database.Geos.MultiPolygon;
 import com.tencent.tcb.database.Geos.Point;
 import com.tencent.tcb.database.Geos.Polygon;
+import com.tencent.tcb.database.Regexp.RegExp;
 import com.tencent.tcb.database.ServerDate.ServerDate;
 import com.tencent.tcb.utils.TcbException;
 
@@ -32,6 +33,10 @@ public class Format {
 
         if (data instanceof ServerDate) {
             return ((ServerDate) data).parse();
+        }
+
+        if (data instanceof RegExp) {
+            return ((RegExp) data).toJSON();
         }
 
         if (data instanceof Point) {
