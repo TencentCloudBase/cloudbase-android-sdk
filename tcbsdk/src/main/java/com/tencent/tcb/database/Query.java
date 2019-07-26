@@ -1,10 +1,9 @@
 package com.tencent.tcb.database;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.tencent.tcb.constants.Code;
+import com.tencent.tcb.database.Commands.LogicCommand;
 import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.Request;
@@ -31,23 +30,30 @@ public class Query {
     /**
      * 初始化
      *
-     * @param db        - 数据库的引用
-     * @param collName  - 集合名称
+     * @param db       - 数据库的引用
+     * @param collName - 集合名称
      */
     public Query(@NonNull Db db, @NonNull String collName) {
-        this(db, collName, new JSONObject(), new ArrayList<HashMap<String, String>>(), new HashMap<String, Object>());
+        this(db, collName, new JSONObject(), new ArrayList<HashMap<String, String>>(),
+                new HashMap<String, Object>());
     }
 
     /**
      * 初始化
      *
-     * @param db            - 数据库的引用
-     * @param collName      - 集合名称
-     * @param fieldFilters  - 过滤条件
-     * @param fieldOrders   - 排序条件
-     * @param queryOptions  - 查询条件
+     * @param db           - 数据库的引用
+     * @param collName     - 集合名称
+     * @param fieldFilters - 过滤条件
+     * @param fieldOrders  - 排序条件
+     * @param queryOptions - 查询条件
      */
-    public Query(@NonNull Db db, @NonNull String collName, @NonNull JSONObject fieldFilters, @NonNull ArrayList<HashMap<String, String>> fieldOrders, @NonNull HashMap<String, Object> queryOptions) {
+    public Query(
+            @NonNull Db db,
+            @NonNull String collName,
+            @NonNull JSONObject fieldFilters,
+            @NonNull ArrayList<HashMap<String, String>> fieldOrders,
+            @NonNull HashMap<String, Object> queryOptions
+    ) {
         this.db = db;
         this.collName = collName;
         this.fieldFilters = fieldFilters;
@@ -62,7 +68,7 @@ public class Query {
 
         // 处理排序条件
         ArrayList<HashMap<String, String>> cloneFieldOrders = new ArrayList<>();
-        for (HashMap<String, String> order : this.fieldOrders)  {
+        for (HashMap<String, String> order : this.fieldOrders) {
             cloneFieldOrders.add(order);
         }
         if (cloneFieldOrders.size() > 0) {
@@ -74,13 +80,13 @@ public class Query {
 
         // 处理查询条件
         if (this.queryOptions.containsKey("offset")) {
-            int offset = (int)this.queryOptions.get("offset");
+            int offset = (int) this.queryOptions.get("offset");
             if (offset > 0) {
                 params.put("offset", offset);
             }
         }
         if (this.queryOptions.containsKey("limit")) {
-            int limit = (int)this.queryOptions.get("limit");
+            int limit = (int) this.queryOptions.get("limit");
             params.put("limit", Math.min(limit, 100));
         } else {
             params.put("limit", 100);
@@ -187,11 +193,26 @@ public class Query {
         return new Query(this.db, this.collName, query, this.fieldOrders, this.queryOptions);
     }
 
+    public Query where(LogicCommand query) throws TcbException {
+        JSONObject queryJSON;
+
+        // 格式化
+        try {
+            queryJSON = query.toJSON();
+            queryJSON = Format.dataFormat(queryJSON);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, e.getMessage());
+        }
+
+        return new Query(this.db, this.collName, queryJSON, this.fieldOrders, this.queryOptions);
+    }
+
+
     /**
      * 设置排序方式
      *
-     * @param fieldPath     字段路径
-     * @param directionStr  排序方式
+     * @param fieldPath    字段路径
+     * @param directionStr 排序方式
      * @return
      * @throws TcbException
      */
@@ -207,11 +228,11 @@ public class Query {
         combinedOrders.addAll(this.fieldOrders);
         combinedOrders.add(newOrder);
 
-        return new Query(this.db, this.collName, this.fieldFilters, combinedOrders, this.queryOptions);
+        return new Query(this.db, this.collName, this.fieldFilters, combinedOrders,
+                this.queryOptions);
     }
 
     /**
-     *
      * @param limit
      * @return
      */
@@ -220,7 +241,8 @@ public class Query {
         combinedOptions.putAll(this.queryOptions);
         combinedOptions.put("limit", limit);
 
-        return new Query(this.db, this.collName, this.fieldFilters, this.fieldOrders, combinedOptions);
+        return new Query(this.db, this.collName, this.fieldFilters, this.fieldOrders,
+                combinedOptions);
     }
 
     public Query skip(int offset) {
@@ -228,7 +250,9 @@ public class Query {
         combinedOptions.putAll(this.queryOptions);
         combinedOptions.put("offset", offset);
 
-        return new Query(this.db, this.collName, this.fieldFilters, this.fieldOrders, combinedOptions);
+        return new Query(
+                this.db, this.collName, this.fieldFilters, this.fieldOrders, combinedOptions
+        );
     }
 
     /**
@@ -272,7 +296,7 @@ public class Query {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());
             }
 
-            return  result;
+            return result;
         }
     }
 
@@ -328,11 +352,16 @@ public class Query {
      */
     public JSONObject remove() throws TcbException {
         if (this.queryOptions.size() > 0) {
-            Log.w("Database.Query", "`offset`, `limit` and `projection` are not supported in remove() operation");
+            throw new TcbException(
+                    "Database.Query",
+                    "`offset`, `limit` and `projection` are not supported in remove() operation"
+            );
         }
 
         if (this.fieldOrders.size() > 0) {
-            Log.w("Database.Query", "`orderBy` is not supported in remove() operation");
+            throw new TcbException(
+                    "Database.Query", "`orderBy` is not supported in remove() operation"
+            );
         }
 
         HashMap<String, Object> params = new HashMap<>();
@@ -352,7 +381,7 @@ public class Query {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());
             }
 
-            return  result;
+            return result;
         }
 
     }

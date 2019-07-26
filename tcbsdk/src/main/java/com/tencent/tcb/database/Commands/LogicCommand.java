@@ -1,7 +1,6 @@
 package com.tencent.tcb.database.Commands;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Format;
@@ -32,23 +31,23 @@ public class LogicCommand {
         return actionMap;
     }
 
-    public LogicCommand or (@NonNull LogicCommand... args) throws TcbException {
-        return this.logicOp("$or", new ArrayList<LogicCommand>(Arrays.asList(args)));
+    public LogicCommand or (@NonNull Object... args) throws TcbException {
+        return this.logicOp("$or", new ArrayList<Object>(Arrays.asList(args)));
     }
 
-    public LogicCommand or (@NonNull ArrayList<LogicCommand> args) throws TcbException {
+    public LogicCommand or (@NonNull ArrayList<Object> args) throws TcbException {
         return this.logicOp("$or", args);
     }
 
-    public LogicCommand and(@NonNull LogicCommand... args) throws TcbException {
-        return this.logicOp("$and", new ArrayList<LogicCommand>(Arrays.asList(args)));
+    public LogicCommand and(@NonNull Object... args) throws TcbException {
+        return this.logicOp("$and", new ArrayList<Object>(Arrays.asList(args)));
     }
 
-    public LogicCommand and (@NonNull ArrayList<LogicCommand> args) throws TcbException {
+    public LogicCommand and (@NonNull ArrayList<Object> args) throws TcbException {
         return this.logicOp("$and", args);
     }
 
-    private LogicCommand logicOp(@NonNull String operation, @NonNull ArrayList<LogicCommand> commands) throws TcbException{
+    private LogicCommand logicOp(@NonNull String operation, @NonNull ArrayList<Object> commands) throws TcbException{
         // 格式化
         ArrayList<JSONObject> formatCommands = new ArrayList<>();
         try {

@@ -1,12 +1,9 @@
 package com.tencent.tcb.database.Utils;
 
-import android.icu.text.Edits;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
-import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Commands.LogicCommand;
+import com.tencent.tcb.database.Commands.UpdateCommand;
 import com.tencent.tcb.database.Geos.LineString;
 import com.tencent.tcb.database.Geos.MultiLineString;
 import com.tencent.tcb.database.Geos.MultiPoint;
@@ -16,7 +13,6 @@ import com.tencent.tcb.database.Geos.Polygon;
 import com.tencent.tcb.database.ServerDate.ServerDate;
 import com.tencent.tcb.utils.TcbException;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,39 +23,43 @@ public class Format {
 
     public static Object dataFormat(@NonNull Object data) throws JSONException {
         if (data instanceof LogicCommand) {
-            return ((LogicCommand)data).toJSON();
+            return ((LogicCommand) data).toJSON();
+        }
+
+        if (data instanceof UpdateCommand) {
+            return ((UpdateCommand) data).toJSON();
         }
 
         if (data instanceof ServerDate) {
-            return ((ServerDate)data).parse();
+            return ((ServerDate) data).parse();
         }
 
         if (data instanceof Point) {
-            return ((Point)data).toJSON();
+            return ((Point) data).toJSON();
         }
 
         if (data instanceof LineString) {
-            return ((LineString)data).toJSON();
+            return ((LineString) data).toJSON();
         }
 
         if (data instanceof Polygon) {
-            return ((Polygon)data).toJSON();
+            return ((Polygon) data).toJSON();
         }
 
         if (data instanceof MultiPoint) {
-            return ((MultiPoint)data).toJSON();
+            return ((MultiPoint) data).toJSON();
         }
 
         if (data instanceof MultiLineString) {
-            return ((MultiLineString)data).toJSON();
+            return ((MultiLineString) data).toJSON();
         }
 
         if (data instanceof MultiPolygon) {
-            return ((MultiPolygon)data).toJSON();
+            return ((MultiPolygon) data).toJSON();
         }
 
         if (data instanceof JSONObject) {
-            return Format.dataFormat((JSONObject)data);
+            return Format.dataFormat((JSONObject) data);
         }
 
         return data;
@@ -69,17 +69,23 @@ public class Format {
         JSONObject cloneData = new JSONObject();
         Iterator iterator = data.keys();
         while (iterator.hasNext()) {
-            String key = (String)iterator.next();
+            String key = (String) iterator.next();
             Object value = data.get(key);
             cloneData.put(key, Format.dataFormat(value));
         }
         return cloneData;
     }
 
-    public static ArrayList<JSONObject> dataFormat(@NonNull ArrayList<LogicCommand> data) throws JSONException {
+    public static ArrayList<JSONObject> dataFormat(@NonNull ArrayList<Object> data) throws JSONException, TcbException {
         ArrayList<JSONObject> cloneData = new ArrayList<>();
-        for (LogicCommand cmd : data) {
-            cloneData.add(cmd.toJSON());
+        for (Object cmd : data) {
+            if (cmd instanceof JSONObject) {
+                cloneData.add((JSONObject) dataFormat(cmd));
+            } else if (cmd instanceof LogicCommand) {
+                cloneData.add((JSONObject) dataFormat(cmd));
+            } else {
+                throw new TcbException("TYPE_ERROR", "操作符类型只能为 JSONObject 或 LogicCommand");
+            }
         }
         return cloneData;
     }

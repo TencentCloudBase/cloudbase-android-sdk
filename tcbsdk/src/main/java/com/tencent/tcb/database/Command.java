@@ -1,8 +1,5 @@
 package com.tencent.tcb.database;
 
-import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -10,9 +7,7 @@ import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Commands.LogicCommand;
 import com.tencent.tcb.database.Commands.QueryCommand;
 import com.tencent.tcb.database.Commands.UpdateCommand;
-import com.tencent.tcb.database.Geos.MultiPolygon;
 import com.tencent.tcb.database.Geos.Point;
-import com.tencent.tcb.database.Geos.Polygon;
 import com.tencent.tcb.database.Utils.Format;
 import com.tencent.tcb.utils.TcbException;
 
@@ -21,7 +16,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Command {
     public QueryCommand eq(@NonNull Object val) throws TcbException {
@@ -56,7 +50,11 @@ public class Command {
         return this.queryOp("$nin", val);
     }
 
-    public QueryCommand geoNear(@NonNull Point point, @Nullable Number maxDistance, @Nullable Number minDistance  ) throws TcbException{
+    public QueryCommand geoNear(
+            @NonNull Point point,
+            @Nullable Number maxDistance,
+            @Nullable Number minDistance
+    ) throws TcbException {
         JSONObject resultGeometry = new JSONObject();
         try {
             resultGeometry.put("geometry", point);
@@ -95,51 +93,59 @@ public class Command {
         return this.queryOp("$geoIntersects", resultGeometry);
     }
 
-    public LogicCommand or (@NonNull LogicCommand... args) throws TcbException {
+    public LogicCommand or(@NonNull Object... args) throws TcbException {
+        Object firstArg = args[0];
+        if (firstArg instanceof ArrayList) {
+            ArrayList<Object> newArgs = new ArrayList<>();
+            for (Object obj : (ArrayList) firstArg) {
+                newArgs.add(obj);
+            }
+            return this.logicOp("$or", newArgs);
+        }
         return this.logicOp("$or", new ArrayList<>(Arrays.asList(args)));
     }
 
-    public LogicCommand or (@NonNull ArrayList<LogicCommand> args) throws TcbException {
-        return this.logicOp("$or", args);
+    public LogicCommand and(@NonNull Object... args) throws TcbException {
+        Object firstArg = args[0];
+        if (firstArg instanceof ArrayList) {
+            ArrayList<Object> newArgs = new ArrayList<>();
+            for (Object obj : (ArrayList) firstArg) {
+                newArgs.add(obj);
+            }
+            return this.logicOp("$and", newArgs);
+        }
+        return this.logicOp("$and", new ArrayList<>(Arrays.asList(args)));
     }
 
-    public LogicCommand and(@NonNull LogicCommand... args) throws TcbException {
-        return this.logicOp("$and", new ArrayList<LogicCommand>(Arrays.asList(args)));
-    }
-
-    public LogicCommand and (@NonNull ArrayList<LogicCommand> args) throws TcbException {
-        return this.logicOp("$and", args);
-    }
-
-    public UpdateCommand set (@NonNull Object val) throws TcbException {
+    public UpdateCommand set(@NonNull Object val) throws TcbException {
         return this.updateOp("$set", val);
     }
 
-    public UpdateCommand remove () throws TcbException {
+    public UpdateCommand remove() throws TcbException {
         return this.updateOp("$remove", null);
     }
 
-    public UpdateCommand inc (@NonNull Object val) throws TcbException {
+    public UpdateCommand inc(@NonNull Object val) throws TcbException {
         return this.updateOp("$inc", val);
     }
 
-    public UpdateCommand mul (@NonNull Object val) throws TcbException {
+    public UpdateCommand mul(@NonNull Object val) throws TcbException {
         return this.updateOp("$mul", val);
     }
 
-    public UpdateCommand push (@NonNull ArrayList<Object> val) throws TcbException {
+    public UpdateCommand push(@NonNull ArrayList<Object> val) throws TcbException {
         return this.updateOp("$push", val);
     }
 
-    public UpdateCommand pop () throws TcbException {
+    public UpdateCommand pop() throws TcbException {
         return this.updateOp("$pop", null);
     }
 
-    public UpdateCommand shift () throws TcbException {
+    public UpdateCommand shift() throws TcbException {
         return this.updateOp("$shift", null);
     }
 
-    public UpdateCommand unshift (@NonNull ArrayList<Object> val) throws TcbException {
+    public UpdateCommand unshift(@NonNull ArrayList<Object> val) throws TcbException {
         return this.updateOp("$unshift", val);
     }
 
@@ -157,7 +163,8 @@ public class Command {
         return new QueryCommand(new ArrayList<ArrayList<Object>>(), step);
     }
 
-    private LogicCommand logicOp(@NonNull String operation, @NonNull ArrayList<LogicCommand> commands) throws TcbException {
+    // commands 为 JSONObject 或 LogicCommand
+    private LogicCommand logicOp(@NonNull String operation, @NonNull ArrayList<Object> commands) throws TcbException {
         // 格式化
         ArrayList<JSONObject> formatCommands = new ArrayList<>();
         try {

@@ -28,7 +28,6 @@ public class DbCommandTest {
         Config config = Constants.config();
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         db = new Db(config, context);
-        addDoc(100);
         addDoc(80);
     }
 
@@ -42,6 +41,7 @@ public class DbCommandTest {
             data.put("age", age);
             data.put("count", 1);
             data.put("list", list);
+            data.put("info", "test");
             result = db.collection("user").add(data);
             docId = result.optString("id");
             assertFalse(docId.isEmpty());
@@ -60,8 +60,8 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
-            query.put("age", cmd.eq(100));
+            // age 等于 80
+            query.put("age", cmd.eq(80));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
@@ -84,15 +84,15 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
-            query.put("age", cmd.neq(100));
+            // age 不等于 80
+            query.put("age", cmd.neq(80));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertTrue(data.length() > 0);
+            assertEquals(data.length(), 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -109,7 +109,7 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
+            // age 小于 100
             query.put("age", cmd.lt(100));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
@@ -133,8 +133,8 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
-            query.put("age", cmd.lte(100));
+            // age 小于等于 80
+            query.put("age", cmd.lte(80));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
@@ -157,8 +157,8 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
-            query.put("age", cmd.gt(100));
+            // age 大于 80
+            query.put("age", cmd.gt(80));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
@@ -181,8 +181,8 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 等于 100
-            query.put("age", cmd.gte(100));
+            // age 大于等于 80
+            query.put("age", cmd.gte(80));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
@@ -233,9 +233,9 @@ public class DbCommandTest {
         try {
             JSONObject query = new JSONObject();
             ArrayList<Object> ages = new ArrayList<>();
-            ages.add(80);
+            ages.add(90);
             ages.add(100);
-            // age 不在 25, 80, 100
+            // age 不在 90, 100
             query.put("age", cmd.nin(ages));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
@@ -259,15 +259,15 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 大于 80 且小于 100
-            query.put("age", cmd.and(cmd.gt(80), cmd.lt(100)));
+            // age 大于 60 且小于 100
+            query.put("age", cmd.and(cmd.gt(60), cmd.lt(100)));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertEquals(data.length(), 0);
+            assertTrue(data.length() > 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -283,15 +283,15 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 大于 80 且小于 100
-            query.put("age", cmd.gt(80).and(cmd.lt(100)));
+            // age 大于 60 且小于 100
+            query.put("age", cmd.gt(60).and(cmd.lt(100)));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertEquals(data.length(), 0);
+            assertTrue(data.length() > 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -309,14 +309,14 @@ public class DbCommandTest {
         try {
             JSONObject query = new JSONObject();
             // age 小于 80 或大于 100
-            query.put("age", cmd.or(cmd.lt(80), cmd.gt(100)));
+            query.put("age", cmd.or(cmd.lt(60), cmd.gt(100)));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertTrue(data.length() > 0);
+            assertEquals(data.length(), 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
@@ -333,7 +333,7 @@ public class DbCommandTest {
         try {
             JSONObject query = new JSONObject();
             // age 小于 25 或大于 100
-            query.put("age", cmd.lt(25).or(cmd.gt(100)));
+            query.put("age", cmd.lt(60).or(cmd.gt(100)));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
@@ -341,6 +341,66 @@ public class DbCommandTest {
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
             assertEquals(data.length(), 0);
+        } catch (TcbException e) {
+            fail(e.toString());
+        } catch (JSONException e) {
+            fail(e.toString());
+        }
+    }
+
+    // or 数组测试
+    @Test
+    public void orArrayTest() {
+        Command cmd = db.command;
+        JSONObject result;
+
+        try {
+            ArrayList<JSONObject> query = new ArrayList<>();
+            // age 大于 60
+            JSONObject query1 = new JSONObject();
+            query1.put("age", cmd.gt(60));
+            // name 为 "older"
+            JSONObject query2 = new JSONObject();
+            query2.put("name", cmd.eq("name"));
+            query.add(query1);
+            query.add(query2);
+            result = db.collection("user").where(cmd.or(query)).get();
+            String requestId = result.optString("requestId");
+            JSONArray data = result.optJSONArray("data");
+            assertNotNull(result);
+            assertNotNull(data);
+            assertFalse(requestId.isEmpty());
+            assertTrue(data.length() > 0);
+        } catch (TcbException e) {
+            fail(e.toString());
+        } catch (JSONException e) {
+            fail(e.toString());
+        }
+    }
+
+    // and 数组测试
+    @Test
+    public void andArrayTest() {
+        Command cmd = db.command;
+        JSONObject result;
+
+        try {
+            ArrayList<JSONObject> query = new ArrayList<>();
+            // age 大于 60
+            JSONObject query1 = new JSONObject();
+            query1.put("age", cmd.gt(60));
+            // name 为 "older"
+            JSONObject query2 = new JSONObject();
+            query2.put("name", "older");
+            query.add(query1);
+            query.add(query2);
+            result = db.collection("user").where(cmd.and(query)).get();
+            String requestId = result.optString("requestId");
+            JSONArray data = result.optJSONArray("data");
+            assertNotNull(result);
+            assertNotNull(data);
+            assertFalse(requestId.isEmpty());
+            assertTrue(data.length() > 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {
