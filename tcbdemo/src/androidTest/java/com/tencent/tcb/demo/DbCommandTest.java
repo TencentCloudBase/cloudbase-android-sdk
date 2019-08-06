@@ -171,15 +171,15 @@ public class DbCommandTest {
 
         try {
             JSONObject query = new JSONObject();
-            // age 大于 80
-            query.put("age", cmd.gt(80));
+            // age 大于 60
+            query.put("age", cmd.gt(60));
             result = db.collection("user").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertNotNull(result);
             assertNotNull(data);
             assertFalse(requestId.isEmpty());
-            assertEquals(data.length(), 0);
+            assertTrue(data.length() > 0);
         } catch (TcbException e) {
             fail(e.toString());
         } catch (JSONException e) {

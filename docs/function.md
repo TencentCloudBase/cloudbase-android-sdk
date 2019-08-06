@@ -42,6 +42,8 @@ try {
 通过 FunctionService 类使用：
 
 ```java
+import com.tencent.tcb.function.FunctionService;
+
 // envName 为环境 Id
 FunctionService functionService = new FunctionService("envName", context);
 

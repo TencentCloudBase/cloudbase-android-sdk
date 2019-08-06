@@ -66,10 +66,17 @@
 下面所有的方法均已挂载到 TCB 类，可以直接使用，如：
 
 ```java
+import com.tencent.tcb.TCB;
+
 TCB tcb = new TCB("envName", context);
 tcb.db.collection("user").doc("docId").get();
+```
 
-// 等价于
+等价于
+
+```java
+import com.tencent.tcb.database.Db;
+
 Db db = new Db("envName", context);
 db.collection("user").doc("docId").get();
 ```
