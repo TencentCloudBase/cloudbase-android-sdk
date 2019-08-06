@@ -44,6 +44,6 @@ public class Db {
             throw new TcbException(Code.EMPTY_PARAM, "Collection name is required");
         }
 
-        return  new Collection(this, collName);
+        return new Collection(this, collName);
     }
 }

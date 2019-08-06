@@ -132,8 +132,15 @@ public class Document {
         params.put("upsert", true);
         params.put("data", data);
         params.put("interfaceCallSource", "SINGLE_SET_DOC");
+
         if (this.id != null && !this.id.isEmpty()) {
-            params.put("_id", this.id);
+            try {
+                JSONObject query = new JSONObject();
+                query.put("_id", this.id);
+                params.put("query", query);
+            } catch (JSONException e) {
+                throw new TcbException(Code.JSON_ERR, e.toString());
+            }
         }
 
         JSONObject res = this.request.sendMidData("database.updateDocument", params);
