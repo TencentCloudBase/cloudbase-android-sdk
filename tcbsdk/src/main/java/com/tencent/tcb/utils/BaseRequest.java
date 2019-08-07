@@ -56,7 +56,7 @@ public class BaseRequest {
             @NonNull HashMap<String, String> headers,
             int timeout
     ) throws JSONException, IOException {
-        headers.put("user-agent", "tcb-php-sdk/beta");
+        headers.put("user-agent", "tcb-android-sdk/beta");
 
         // 补充必要参数
         params.put("action", action);

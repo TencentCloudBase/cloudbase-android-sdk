@@ -291,7 +291,7 @@ public class Query {
             try {
                 result.put("requestId", res.getString("requestId"));
                 result.put("upsertedId", res.getJSONObject("data").getString("upserted_id"));
-                result.put("updated", res.getJSONObject("data").getBoolean("updated"));
+                result.put("updated", res.getJSONObject("data").optInt("updated"));
             } catch (JSONException e) {
                 throw new TcbException(Code.JSON_ERR, e.getMessage());
             }
