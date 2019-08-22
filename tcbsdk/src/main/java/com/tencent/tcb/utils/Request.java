@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.tencent.tcb.auth.WeixinAuth;
+import com.tencent.tcb.auth.BaseAuth;
 import com.tencent.tcb.constants.Code;
 
 import org.json.JSONException;
@@ -14,11 +14,11 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Request extends BaseRequest {
-    private WeixinAuth weixinAuth;
+    private BaseAuth auth;
 
     public Request(@NonNull Config config, Context context) {
         super(config);
-        weixinAuth = new WeixinAuth(context, config);
+        auth = new BaseAuth(context, config.envName);
     }
 
     public JSONObject send(
@@ -63,13 +63,8 @@ public class Request extends BaseRequest {
             @NonNull HashMap<String, String> headers,
             int timeout
     ) throws JSONException, IOException, TcbException {
-        String accessToken = getAccessToken();
+        String accessToken = auth.getAccessToken();
         params.put("access_token", accessToken);
         return super.internalSend(action, params, headers, timeout);
-    }
-
-    private String getAccessToken() throws TcbException {
-        weixinAuth.getAuth();
-        return weixinAuth.accessToken;
     }
 }

@@ -51,14 +51,15 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             case BaseResp.ErrCode.ERR_OK:
                 final String code = ((SendAuth.Resp) resp).code;
                 if (code != null) {
-                    // 拿到了微信返回的code,立马再去请求access_token
+                    // 微信返回的 code
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            weixinAuth.callback(code);
+                            weixinAuth.loginWithCode(code);
                         }
                     }).start();
                 }
+                break;
             default:
                 weixinAuth.loginListener.onFailed(
                         new TcbException("ERR_AUTH_DENIED", "user auth denied")

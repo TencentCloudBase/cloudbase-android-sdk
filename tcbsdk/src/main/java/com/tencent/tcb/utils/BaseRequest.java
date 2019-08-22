@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 
 public class BaseRequest {
-    private static final String TCB_WEB_URL = "https://tcb-api.tencentcloudapi.com/web";
+    private String TCB_WEB_URL = "https://tcb-api.tencentcloudapi.com/web";
     private static final int TCB_DEFAULT_TIMEOUT = 15000;
     private static final String VERSION = "beta";
     private static final String DATA_VERSION = "2019-06-01";
@@ -28,6 +28,7 @@ public class BaseRequest {
 
     public BaseRequest(@NonNull Config config) {
         this.config = config;
+        TCB_WEB_URL = TCB_WEB_URL + "?env=" + config.envName;
     }
 
     public JSONObject send(
@@ -82,7 +83,6 @@ public class BaseRequest {
         requestBuilder.addHeader("Charset", "UTF8");
         requestBuilder.addHeader("Content-Type", "application/json");
         requestBuilder.addHeader("Accept", "application/json");
-        requestBuilder.addHeader("Referer", "http://jimmytest-088bef.tcb.qcloud.la");
 
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             requestBuilder.addHeader(entry.getKey(), entry.getValue());

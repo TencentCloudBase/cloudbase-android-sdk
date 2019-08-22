@@ -19,6 +19,13 @@
             android:textAlignment="center" />
 
         <Button
+            android:id="@+id/custom_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="自定义登录"
+            android:textAlignment="center" />
+
+        <Button
             android:id="@+id/cloud_function_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,6 +42,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="云数据库" />
+
+        <Button
+            android:id="@+id/logout_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="注销登录"
+            android:textAlignment="center" />
 
     </LinearLayout>
 
