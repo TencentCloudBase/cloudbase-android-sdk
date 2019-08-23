@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                jsonWebToken();
+                logout();
             }
         });
 
@@ -276,5 +276,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    private void logout() {
+        customAuth.logout();
     }
 }
