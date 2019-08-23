@@ -1,6 +1,19 @@
 # 授权登录
 
-为了保证开发者资源的安全性，在调用 Cloudbase 服务时需要进行登录授权。
+- [微信授权](#%e5%be%ae%e4%bf%a1%e6%8e%88%e6%9d%83)
+  - [1. 申请微信开放平台 APP](#1-%e7%94%b3%e8%af%b7%e5%be%ae%e4%bf%a1%e5%bc%80%e6%94%be%e5%b9%b3%e5%8f%b0-app)
+  - [2. 云开发绑定微信开放平台](#2-%e4%ba%91%e5%bc%80%e5%8f%91%e7%bb%91%e5%ae%9a%e5%be%ae%e4%bf%a1%e5%bc%80%e6%94%be%e5%b9%b3%e5%8f%b0)
+  - [3. 添加微信登录 SDK](#3-%e6%b7%bb%e5%8a%a0%e5%be%ae%e4%bf%a1%e7%99%bb%e5%bd%95-sdk)
+  - [4. 新建 WXEntryActivity 类](#4-%e6%96%b0%e5%bb%ba-wxentryactivity-%e7%b1%bb)
+  - [5. 配置 SDK 权限](#5-%e9%85%8d%e7%bd%ae-sdk-%e6%9d%83%e9%99%90)
+  - [6. 微信登录](#6-%e5%be%ae%e4%bf%a1%e7%99%bb%e5%bd%95)
+  - [微信登录兼容](#%e5%be%ae%e4%bf%a1%e7%99%bb%e5%bd%95%e5%85%bc%e5%ae%b9)
+- [自定义登录](#%e8%87%aa%e5%ae%9a%e4%b9%89%e7%99%bb%e5%bd%95)
+  - [1. 获取私钥文件](#1-%e8%8e%b7%e5%8f%96%e7%a7%81%e9%92%a5%e6%96%87%e4%bb%b6)
+  - [2. 服务端生成 Ticket](#2-%e6%9c%8d%e5%8a%a1%e7%ab%af%e7%94%9f%e6%88%90-ticket)
+  - [3. 使用 Ticket 登录](#3-%e4%bd%bf%e7%94%a8-ticket-%e7%99%bb%e5%bd%95)
+
+为了保证开发者资源的安全性，在调用 CloudBase 服务时需要进行登录授权。
 
 目前 Android SDK 支持微信开放平台授权以及自定义登录，不支持匿名访问。因此在初始化资源后请立即调用登录接口做登录授权，登录成功前其它的数据请求将不能成功发出。
 
@@ -10,15 +23,15 @@
 
 ### 1. 申请微信开放平台 APP
 
-你需要到[微信开放平台](https://open.weixin.qq.com/) 申请接入移动应用，获取 AppID 和 AppSecret，并获取微信登录接口能力。
+您需要到[微信开放平台](https://open.weixin.qq.com/) 申请接入移动应用，获取 AppID 和 AppSecret，并获取微信登录接口能力。
 
 ### 2. 云开发绑定微信开放平台
 
-获取移动应用的 AppID 和 AppSecret 之后，你需要到[云开发 Web 控制台](https://console.cloud.tencent.com/tcb/user) => 用户管理 => 登录设置中绑定微信开放平台。
+获取移动应用的 AppID 和 AppSecret 之后，您需要到[云开发 Web 控制台](https://console.cloud.tencent.com/tcb/user) => 用户管理 => 登录设置中绑定微信开放平台。
 
 ### 3. 添加微信登录 SDK
 
-在你的 Android 项目的 build.gradle 文件中，添加如下依赖：
+在您的 Android 项目的 build.gradle 文件中，添加如下依赖：
 
 ```
 dependencies {
@@ -30,7 +43,7 @@ dependencies {
 
 调用微信登录后，SDK 会唤起微信，用户同意后登录授权后，微信会回调授权信息给对应的应用，为了能接收微信的返回值，需要遵守微信的 SDK 接入规范，按如下说明进行：
 
-在你的包名相应目录下新建一个 wxapi 目录，并在该 wxapi 目录下新增一个 WXEntryActivity 类，该类继承自 Activity，WXEntryActivity 类的内容如下：
+在您的包名相应目录下新建一个 wxapi 目录，并在该 wxapi 目录下新增一个 WXEntryActivity 类，该类继承自 Activity，WXEntryActivity 类的内容如下：
 
 ```java
 package com.tencent.tcb.demo.wxapi;
@@ -53,7 +66,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private WeixinAuth weixinAuth = null;
     public String envName = "test-a8e99b";
     // 请使用微信开放平台移动应用 appId
-    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定你的 AppID 和 AppSecret
+    // 并在云开发 Web 控制台：用户管理/登陆设置中绑定您的 AppID 和 AppSecret
     public String appId = "wx9c4cxxxxx";
 
     @Override
@@ -169,7 +182,7 @@ private void weixinLogin() {
 
 ### 微信登录兼容
 
-如果你的应用已经接入了微信登录，请在 WXEntryActivity 类中初始化 weixinAuth 实例，并在获取登录的 code 之后调用 `weixinAuth.callback(code)` 方法。
+如果您的应用已经接入了微信登录，请在 WXEntryActivity 类中初始化 weixinAuth 实例，并在获取登录的 code 之后调用 `weixinAuth.callback(code)` 方法。
 
 ## 自定义登录
 
@@ -191,7 +204,7 @@ CloudBase 允许开发者使用特定的登录凭据 Ticket 对用户进行身�
 | env     | Cloudbase 环境名 | 对应的环境名                                        |
 | iat     | Ticket 颁发时间  | 当前时间（Unix 时间戳对应的毫秒数）                 |
 | exp     | Ticket 过期时间  | Ticket 过期的时间（Unix 时间戳对应的毫秒数）        |
-| uid     | 自定义 uid       | 自定义的用户全局唯一 id （字母或数组组成，4~32 位） |
+| uid     | 自定义 uid       | 自定义的用户全局唯一 id （字母和数字组成，4~32 位） |
 | refresh | 登录态刷新时间   | 毫秒数，上限为 1 小时（3600000 毫秒）               |
 | expire  | 登录态过期时间   | Unix 时间戳对应的毫秒数                             |
 
@@ -211,6 +224,16 @@ JWT 的 Header 包含以下信息：
 JWT 生成 Token 的例子：
 
 ```java
+import com.tencent.tcb.auth.CustomAuth;
+import com.tencent.tcb.utils.TcbException;
+
+import java.security.KeyFactory;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.Signature;
+import java.util.Date;
+import android.util.Base64;
+import org.json.JSONObject;
+
 // 生成 token
 private String jsonWebToken() {
     // Web 控制台生成的 private_key，需要去除 -----BEGIN RSA PRIVATE KEY----- 和 -----END RSA PRIVATE KEY-----
@@ -269,7 +292,7 @@ private String jsonWebToken() {
     }
 }
 
-// Ticket
+// 生成 Ticket
 String token = jsonWebToken();
 String ticket = "661f0d53-dd8f-483b-b032-e9945478ec5b/@@/" + token;
 ```
@@ -278,10 +301,12 @@ String ticket = "661f0d53-dd8f-483b-b032-e9945478ec5b/@@/" + token;
 
 ```java
 import com.tencent.tcb.auth.CustomAuth;
+
 CustomAuth customAuth = new CustomAuth(context, config.envName);
 
 // 此处替换成您生成的自定义登录 Ticket
 final String ticket = "";
+
 // 新建网络请求线程
 new Thread(new Runnable() {
     @Override

@@ -1,13 +1,12 @@
 # 存储
 
-<!-- TOC -->
-- 存储
-  - [上传文件](#上传文件)
-  - [获取文件下载链接](#获取文件下载链接)
-  - [删除文件](#删除文件)
-<!-- /TOC -->
+- [简单用法](#简单用法)
+- [上传文件](#上传文件)
+- [下载文件](#下载文件)
+- [删除文件](#删除文件)
+- [获取文件临时下载链接](#获取文件临时下载链接)
 
-### 简单用法
+## 简单用法
 
 下面所有的方法均已挂载到 TCB 类，可以直接使用，如：
 
@@ -27,7 +26,7 @@ StorageService storage = new StorageService("envName", context);
 storage.uploadFile();
 ```
 
-### 上传文件
+## 上传文件
 
 - `public void uploadFile(String cloudPath, File file, TcbStorageListener listener)`
 - `public void uploadFile(String cloudPath, String filePath, TcbStorageListener listener)`
@@ -76,7 +75,7 @@ storage.uploadFile("txt/data.txt", filePath, new TcbStorageListener() {
 });
 ```
 
-### 下载文件
+## 下载文件
 
 `public void downloadFile(String fileId, String tempFilePath, TcbStorageListener listener)`
 
@@ -125,7 +124,7 @@ storage.downloadFile(
 );
 ```
 
-### 删除文件
+## 删除文件
 
 `public JSONObject deleteFile(String[] fileList)`
 
@@ -171,7 +170,7 @@ try {
 }
 ```
 
-### 获取文件临时下载链接
+## 获取文件临时下载链接
 
 - `public JSONObject getTempFileURL(String[] fileList)`
 - `public JSONObject getTempFileURL(ArrayList<FileMeta> fileList)`

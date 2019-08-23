@@ -1,14 +1,16 @@
-# Tencent Cloud Base(TCB) Android SDK
+# Tencent CloudBase(TCB) Android SDK
 
-## 目录
-
-- [介绍](#介绍)
-- [安装](#安装)
-- [文档](#文档)
+- [介绍](#%e4%bb%8b%e7%bb%8d)
+- [安装](#%e5%ae%89%e8%a3%85)
+- [快速上手](#%e5%bf%ab%e9%80%9f%e4%b8%8a%e6%89%8b)
+  - [登录授权](#%e7%99%bb%e5%bd%95%e6%8e%88%e6%9d%83)
+  - [使用](#%e4%bd%bf%e7%94%a8)
+- [文档](#%e6%96%87%e6%a1%a3)
+- [更新日志](#%e6%9b%b4%e6%96%b0%e6%97%a5%e5%bf%97)
 
 ## 介绍
 
-TCB 提供开发应用所需服务和基础设施。TCB Android SDK 让你可以在 Android APP 中访问 TCB 的服务。
+CloudBase 提供开发应用所需服务和基础设施。TCB Android SDK 让您可以在 Android APP 中访问 TCB 的服务。
 
 ## 安装
 
@@ -18,7 +20,7 @@ TCB 提供开发应用所需服务和基础设施。TCB Android SDK 让你可以
 
 ### 登录授权
 
-为了保证开发者资源的安全性，在使用 TCB Android SDK 服务时需要进行登录授权。目前 TCB Android SDK 仅支持通过微信登录授权，微信登录计入详情参见文档：[登录授权](docs/authorization.md)
+为了保证开发者资源的安全性，在使用 TCB Android SDK 服务时需要进行登录授权。目前 Android SDK 支持微信开放平台授权以及自定义登录，不支持匿名访问。因此在初始化资源后请立即调用登录接口做登录授权，登录成功前其它的数据请求将不能成功发出，详情参见文档：[登录授权](docs/authorization.md)
 
 ### 使用
 
@@ -66,4 +68,3 @@ JSONObject res = functionService.callFunction("test", data);
 ## 更新日志
 
 查看[更新日志](./changelog.md)
-

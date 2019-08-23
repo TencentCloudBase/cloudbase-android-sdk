@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,40 +11,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.tencent.tcb.auth.CustomAuth;
 import com.tencent.tcb.auth.WeixinAuth;
 import com.tencent.tcb.auth.LoginListener;
 import com.tencent.tcb.utils.Config;
 import com.tencent.tcb.utils.TcbException;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import java.math.BigInteger;
 import java.security.KeyFactory;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.security.Signature;
 import java.util.Date;
 
 import android.util.Base64;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 public class MainActivity extends AppCompatActivity {
     private Handler uiHandler = null;
