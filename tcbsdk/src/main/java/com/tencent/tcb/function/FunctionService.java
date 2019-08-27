@@ -87,14 +87,7 @@ public class FunctionService {
             } else {
                 // 尝试解析 response
                 JSONObject data = res.getJSONObject("data");
-                JSONObject result;
-                try {
-                    // response 为 JSON 字符串
-                    result = new JSONObject(data.getString("response_data"));
-                } catch (JSONException e) {
-                    // response 为对象
-                    result = data.getJSONObject("response_data");
-                }
+                String result = data.getString("response_data");
                 // 返回 requestId 和 result
                 JSONObject ret = new JSONObject();
                 ret.put("requestId", res.getString("requestId"));

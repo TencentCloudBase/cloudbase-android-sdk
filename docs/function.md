@@ -52,7 +52,8 @@ try {
     data.put("key", "test");
     JSONObject res = functionService.callFunction("test", data);
     String requestId = res.getString("requestId");
-    JSONObject result = res.getJSONObject("result");
+    // result 为 string
+    String result = res.getString("result")
 } catch (TcbException e) {
     fail(e.toString());
 }
