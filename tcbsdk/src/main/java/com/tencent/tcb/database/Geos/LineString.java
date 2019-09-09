@@ -18,7 +18,7 @@ public class LineString {
      */
     public ArrayList<Point> points;
 
-    public LineString(@NonNull ArrayList<Point> points) throws TcbException{
+    public LineString(@NonNull ArrayList<Point> points) throws TcbException {
         if (points.size() < 2) {
             throw new TcbException(Code.INVALID_PARAM, "points must contain 2 points at least");
         }
@@ -31,9 +31,9 @@ public class LineString {
         for (Point point : this.points) {
             // 深拷贝
             JSONArray pointCoordinates = point.toJSON().getJSONArray("coordinates");
-            JSONArray clonePointCordinates = new JSONArray();
-            clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
-            lineCoordinates.put(clonePointCordinates);
+            JSONArray clonePointCoordinates = new JSONArray();
+            clonePointCoordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
+            lineCoordinates.put(clonePointCoordinates);
         }
 
         JSONObject result = new JSONObject();
@@ -43,7 +43,19 @@ public class LineString {
         return result;
     }
 
-    public static boolean validate(JSONObject lineJson) throws TcbException{
+    public static LineString fromJson(JSONArray coordinates) throws TcbException {
+        try {
+            ArrayList<Point> points = new ArrayList<>();
+            for (int i = 0; i < coordinates.length(); i++) {
+                points.add(Point.fromJson(coordinates.getJSONArray(i)));
+            }
+            return new LineString(points);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, "Parse LineString Error, Invalid Data");
+        }
+    }
+
+    public static boolean validate(JSONObject lineJson) throws TcbException {
         if (!lineJson.has("type") || !lineJson.has("coordinates")) {
             return false;
         }
@@ -72,6 +84,6 @@ public class LineString {
         Point firstPoint = lineString.points.get(0);
         Point lastPoint = lineString.points.get(lineString.points.size() - 1);
 
-        return  (firstPoint.latitude == lastPoint.latitude && firstPoint.longitude == lastPoint.longitude);
+        return (firstPoint.latitude == lastPoint.latitude && firstPoint.longitude == lastPoint.longitude);
     }
 }

@@ -14,7 +14,7 @@ public class MultiPoint {
 
     public ArrayList<Point> points;
 
-    public MultiPoint(ArrayList<Point> points) throws TcbException{
+    public MultiPoint(ArrayList<Point> points) throws TcbException {
         if (points.size() == 0) {
             throw new TcbException(Code.INVALID_PARAM, "points must contain 1 point at least");
         }
@@ -27,9 +27,9 @@ public class MultiPoint {
         // 深拷贝
         for (Point point : this.points) {
             JSONArray pointCoordinates = point.toJSON().getJSONArray("coordinates");
-            JSONArray clonePointCordinates = new JSONArray();
-            clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
-            coordinates.put(clonePointCordinates);
+            JSONArray clonePointCoordinates = new JSONArray();
+            clonePointCoordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
+            coordinates.put(clonePointCoordinates);
         }
 
         JSONObject result = new JSONObject();
@@ -37,6 +37,18 @@ public class MultiPoint {
         result.put("coordinates", coordinates);
 
         return result;
+    }
+
+    public static MultiPoint fromJson(JSONArray coordinates) throws TcbException {
+        try {
+            ArrayList<Point> points = new ArrayList<>();
+            for(int i =0;i < coordinates.length(); i ++) {
+                points.add(Point.fromJson(coordinates.getJSONArray(i)));
+            }
+            return new MultiPoint(points);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, "Parse MultiPoint Error. Invalid Data");
+        }
     }
 
     public static boolean validate(JSONObject multiPointJson) throws TcbException {

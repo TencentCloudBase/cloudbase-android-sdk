@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MultiLineString {
     public ArrayList<LineString> lines;
 
-    public MultiLineString(ArrayList<LineString> lines) throws TcbException{
+    public MultiLineString(ArrayList<LineString> lines) throws TcbException {
         if (lines.size() == 0) {
             throw new TcbException(Code.INVALID_PARAM, "Polygon must contain 1 linestring at least");
         }
@@ -27,11 +27,11 @@ public class MultiLineString {
         for (LineString line : this.lines) {
             JSONArray lineCoordinates = line.toJSON().getJSONArray("coordinates");
             JSONArray cloneLineCoordinates = new JSONArray();
-            for(int i = 0; i < lineCoordinates.length(); i++) {
+            for (int i = 0; i < lineCoordinates.length(); i++) {
                 JSONArray pointCoordinates = lineCoordinates.getJSONArray(i);
-                JSONArray clonePointCordinates = new JSONArray();
-                clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
-                cloneLineCoordinates.put(clonePointCordinates);
+                JSONArray clonePointCoordinates = new JSONArray();
+                clonePointCoordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
+                cloneLineCoordinates.put(clonePointCoordinates);
             }
             coordinates.put(cloneLineCoordinates);
         }
@@ -43,7 +43,19 @@ public class MultiLineString {
         return result;
     }
 
-    public static boolean validate(JSONObject multiLineJson) throws TcbException{
+    public static MultiLineString fromJson(JSONArray coordinates) throws TcbException {
+        try {
+            ArrayList<LineString> lines = new ArrayList<>();
+            for (int i = 0; i < coordinates.length(); i++) {
+                lines.add(LineString.fromJson(coordinates.getJSONArray(i)));
+            }
+            return new MultiLineString(lines);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, "Parse MultiLineString Error. Invalid Data");
+        }
+    }
+
+    public static boolean validate(JSONObject multiLineJson) throws TcbException {
         if (!multiLineJson.has("type") || !multiLineJson.has("coordinates")) {
             return false;
         }

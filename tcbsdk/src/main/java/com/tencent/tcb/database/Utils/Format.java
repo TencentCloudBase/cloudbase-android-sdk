@@ -17,6 +17,7 @@ import com.tencent.tcb.utils.TcbException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -33,6 +34,12 @@ public class Format {
 
         if (data instanceof ServerDate) {
             return ((ServerDate) data).parse();
+        }
+
+        if (data instanceof Date) {
+            JSONObject result = new JSONObject();
+            result.put("$date", ((Date) data).getTime());
+            return result;
         }
 
         if (data instanceof RegExp) {

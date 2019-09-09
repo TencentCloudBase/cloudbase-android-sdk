@@ -45,11 +45,11 @@ public class Polygon {
         for (LineString line : this.lines) {
             JSONArray lineCoordinates = line.toJSON().getJSONArray("coordinates");
             JSONArray cloneLineCoordinates = new JSONArray();
-            for(int i = 0; i < lineCoordinates.length(); i++) {
+            for (int i = 0; i < lineCoordinates.length(); i++) {
                 JSONArray pointCoordinates = lineCoordinates.getJSONArray(i);
-                JSONArray clonePointCordinates = new JSONArray();
-                clonePointCordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
-                cloneLineCoordinates.put(clonePointCordinates);
+                JSONArray clonePointCoordinates = new JSONArray();
+                clonePointCoordinates.put(pointCoordinates.getDouble(0)).put(pointCoordinates.getDouble(1));
+                cloneLineCoordinates.put(clonePointCoordinates);
             }
             coordinates.put(cloneLineCoordinates);
         }
@@ -61,7 +61,19 @@ public class Polygon {
         return result;
     }
 
-    public static boolean validate(JSONObject polygonJson) throws TcbException{
+    public static Polygon fromJson(JSONArray coordinates) throws TcbException {
+        try {
+            ArrayList<LineString> lines = new ArrayList<>();
+            for (int i = 0; i < coordinates.length(); i++) {
+                lines.add(LineString.fromJson(coordinates.getJSONArray(i)));
+            }
+            return new Polygon(lines);
+        } catch (JSONException e) {
+            throw new TcbException(Code.JSON_ERR, "Parse Polygon Error. Invalid Data");
+        }
+    }
+
+    public static boolean validate(JSONObject polygonJson) throws TcbException {
         if (!polygonJson.has("type") || !polygonJson.has("coordinates")) {
             return false;
         }
@@ -93,6 +105,6 @@ public class Polygon {
         Point firstPoint = lineString.points.get(0);
         Point lastPoint = lineString.points.get(lineString.points.size() - 1);
 
-        return  (firstPoint.latitude == lastPoint.latitude && firstPoint.longitude == lastPoint.longitude);
+        return (firstPoint.latitude == lastPoint.latitude && firstPoint.longitude == lastPoint.longitude);
     }
 }

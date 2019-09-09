@@ -1,5 +1,6 @@
 package com.tencent.tcb.database.Geos;
 
+import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.TcbException;
 
@@ -45,6 +46,11 @@ public class Point {
 
     public String toReadableString() {
         return "[ " + this.longitude + " " + this.latitude + " ]";
+    }
+
+
+    public static Point fromJson(JSONArray coordinates) throws TcbException {
+        return new Point(coordinates.optDouble(0), coordinates.optDouble(1));
     }
 
     public static boolean validate(JSONObject pointJson) throws TcbException {

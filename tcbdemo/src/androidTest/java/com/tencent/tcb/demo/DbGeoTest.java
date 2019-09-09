@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -104,6 +105,7 @@ public class DbGeoTest {
             MultiPolygon multiPolygon = db.geo.multiPolygon(multiPolygonList);
 
             JSONObject doc = new JSONObject();
+            doc.put("due", new Date(1568036702220L));
             doc.put("point", randomPoint());
             doc.put("geoNearPoint", geoNearPoint);
             doc.put("line", line);
