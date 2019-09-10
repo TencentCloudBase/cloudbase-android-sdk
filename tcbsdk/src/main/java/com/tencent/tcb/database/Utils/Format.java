@@ -17,7 +17,7 @@ import com.tencent.tcb.utils.TcbException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
 
