@@ -14,6 +14,7 @@ import com.tencent.tcb.database.Regexp.RegExp;
 import com.tencent.tcb.database.ServerDate.ServerDate;
 import com.tencent.tcb.utils.TcbException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,7 +24,7 @@ import java.util.Iterator;
 
 public class Format {
 
-    public static Object dataFormat(@NonNull Object data) throws JSONException {
+    public static Object dataFormat(@NonNull Object data) throws JSONException, TcbException {
         if (data instanceof LogicCommand) {
             return ((LogicCommand) data).toJSON();
         }
@@ -74,10 +75,25 @@ public class Format {
             return Format.dataFormat((JSONObject) data);
         }
 
+        if (data instanceof ArrayList) {
+            return Format.dataFormat(data);
+        }
+
+        if (data instanceof JSONArray) {
+            ArrayList<Object> list = new ArrayList<>();
+            JSONArray jArray = (JSONArray) data;
+            for (int i = 0; i < jArray.length(); i++) {
+                list.add(jArray.getString(i));
+            }
+
+            return Format.dataFormat(list);
+        }
+
         return data;
     }
 
-    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException {
+    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException,
+            TcbException {
         JSONObject cloneData = new JSONObject();
         Iterator iterator = data.keys();
         while (iterator.hasNext()) {

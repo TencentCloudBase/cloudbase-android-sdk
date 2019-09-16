@@ -175,6 +175,10 @@ public class Util {
     }
 
     public static String whichType(Object data) throws TcbException {
+        if (data == null) {
+            return "NULL";
+        }
+
         if (data instanceof String) {
             return "String";
         }
@@ -191,7 +195,7 @@ public class Util {
             JSONObject jData = (JSONObject) data;
 
             if (!jData.optString("$timestamp").isEmpty()) {
-                return "Date";
+                return "Timestamp";
             }
 
             if (!jData.optString("$date").isEmpty()) {
