@@ -75,25 +75,19 @@ public class Format {
             return Format.dataFormat((JSONObject) data);
         }
 
-        if (data instanceof ArrayList) {
-            return Format.dataFormat(data);
-        }
 
         if (data instanceof JSONArray) {
-            ArrayList<Object> list = new ArrayList<>();
-            JSONArray jArray = (JSONArray) data;
-            for (int i = 0; i < jArray.length(); i++) {
-                list.add(jArray.getString(i));
-            }
+            return Format.dataFormat((JSONArray) data);
+        }
 
-            return Format.dataFormat(list);
+        if (data instanceof ArrayList) {
+            return Format.dataFormat((ArrayList) data);
         }
 
         return data;
     }
 
-    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException,
-            TcbException {
+    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException, TcbException {
         JSONObject cloneData = new JSONObject();
         Iterator iterator = data.keys();
         while (iterator.hasNext()) {
@@ -104,17 +98,19 @@ public class Format {
         return cloneData;
     }
 
-    public static ArrayList<JSONObject> dataFormat(@NonNull ArrayList<Object> data) throws JSONException, TcbException {
-        ArrayList<JSONObject> cloneData = new ArrayList<>();
+    public static ArrayList<Object> dataFormat(@NonNull ArrayList<Object> data) throws JSONException, TcbException {
+        ArrayList<Object> cloneData = new ArrayList<>();
         for (Object cmd : data) {
-            if (cmd instanceof JSONObject) {
-                cloneData.add((JSONObject) dataFormat(cmd));
-            } else if (cmd instanceof LogicCommand) {
-                cloneData.add((JSONObject) dataFormat(cmd));
-            } else {
-                throw new TcbException("TYPE_ERROR", "操作符类型只能为 JSONObject 或 LogicCommand");
-            }
+            cloneData.add(dataFormat(cmd));
         }
         return cloneData;
+    }
+
+    public static JSONArray dataFormat(@NonNull JSONArray data) throws JSONException, TcbException {
+        JSONArray arr = new JSONArray();
+        for (int i = 0; i < ((JSONArray) data).length(); i++) {
+            arr.put(dataFormat(data.get(i)));
+        }
+        return arr;
     }
 }

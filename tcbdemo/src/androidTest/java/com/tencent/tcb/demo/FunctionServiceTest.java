@@ -34,7 +34,8 @@ public class FunctionServiceTest {
         try {
             JSONObject res = functionService.callFunction("test-scf");
             String requestId = res.getString("requestId");
-            JSONObject result = res.getJSONObject("result");
+            String resultStr = res.getString("result");
+            JSONObject result = new JSONObject(resultStr);
             Log.d("测试", res.toString());
             assertFalse(requestId.isEmpty());
             assertNotNull(result);
@@ -51,7 +52,8 @@ public class FunctionServiceTest {
             JSONObject data = new JSONObject("{\"key\":\"test\"}");
             JSONObject res = functionService.callFunction("test-scf", data);
             String requestId = res.getString("requestId");
-            JSONObject result = res.getJSONObject("result");
+            String resultStr = res.getString("result");
+            JSONObject result = new JSONObject(resultStr);
             Log.d("测试", res.toString());
             assertFalse(requestId.isEmpty());
             assertNotNull(result);

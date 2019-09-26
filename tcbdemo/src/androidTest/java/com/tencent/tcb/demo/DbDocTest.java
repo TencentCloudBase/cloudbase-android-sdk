@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.*;
 
 public class DbDocTest {
@@ -51,6 +53,19 @@ public class DbDocTest {
 
         try {
             data.put("name", "update-older");
+            ArrayList<Object> array = new ArrayList<>();
+            JSONObject arrObj = new JSONObject();
+            arrObj.put("null", JSONObject.NULL);
+            arrObj.put("string", "");
+            arrObj.put("int", -1);
+            JSONArray innerArr = new JSONArray();
+            innerArr.put(1);
+            innerArr.put(2);
+            array.add(innerArr);
+            array.add(arrObj);
+            data.put("array", array);
+            data.put("int", -1);
+
             // 获取文档
             result = db.collection("user").doc(docId).get();
             JSONArray dataArray = result.optJSONArray("data");

@@ -166,7 +166,7 @@ public class Command {
     // commands 为 JSONObject 或 LogicCommand
     private LogicCommand logicOp(@NonNull String operation, @NonNull ArrayList<Object> commands) throws TcbException {
         // 格式化
-        ArrayList<JSONObject> formatCommands = new ArrayList<>();
+        ArrayList<Object> formatCommands = new ArrayList<>();
         try {
             formatCommands = Format.dataFormat(commands);
         } catch (JSONException e) {

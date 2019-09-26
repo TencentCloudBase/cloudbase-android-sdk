@@ -131,14 +131,14 @@ public class DbGeoTest {
         JSONObject result;
         try {
             // 添加文档
-            result = db.collection("user").add(doc);
+            result = db.collection("geo").add(doc);
             String docId = result.optString("id");
             assertFalse(docId.isEmpty());
 
             // 查询文档
             JSONObject query = new JSONObject();
             query.put("_id", docId);
-            result = db.collection("user").where(query).get();
+            result = db.collection("geo").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertFalse(requestId.isEmpty());
@@ -147,14 +147,14 @@ public class DbGeoTest {
 
             // 更新文档
             JSONObject updateData = new JSONObject();
-            result = db.collection("user").doc(docId).set(doc);
+            result = db.collection("geo").doc(docId).set(doc);
             requestId = result.optString("requestId");
             int updated = result.optInt("updated");
             assertFalse(requestId.isEmpty());
             assertTrue(updated > 0);
 
             // 删除文档
-            result = db.collection("user").doc(docId).remove();
+            result = db.collection("geo").doc(docId).remove();
             requestId = result.optString("requestId");
             int deleted = result.optInt("deleted");
             assertFalse(requestId.isEmpty());
@@ -174,14 +174,14 @@ public class DbGeoTest {
             doc.put("geo", geoPoint);
 
             // 创建文档
-            result = db.collection("user").add(doc);
+            result = db.collection("geo").add(doc);
             String id = result.optString("id");
             assertFalse(id.isEmpty());
 
             // 查询文档
             JSONObject query = new JSONObject();
             query.put("geo", db.command.geoNear(geoPoint, 1, 0));
-            result = db.collection("user").where(query).get();
+            result = db.collection("geo").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertFalse(requestId.isEmpty());
@@ -189,7 +189,7 @@ public class DbGeoTest {
             assertTrue(data.length() > 0);
 
             // 删除文档
-            result = db.collection("user").doc(id).remove();
+            result = db.collection("geo").doc(id).remove();
             requestId = result.optString("requestId");
             int deleted = result.optInt("deleted");
             assertFalse(requestId.isEmpty());
@@ -210,7 +210,7 @@ public class DbGeoTest {
             doc.put("geo", geoPoint);
 
             // 创建文档
-            result = db.collection("user").add(doc);
+            result = db.collection("geo").add(doc);
             String id = result.optString("id");
             assertFalse(id.isEmpty());
 
@@ -231,7 +231,7 @@ public class DbGeoTest {
             // 查询条件
             JSONObject query = new JSONObject();
             query.put("geo", db.command.geoWithin(db.geo.polygon(lineList)));
-            result = db.collection("user").where(query).get();
+            result = db.collection("geo").where(query).get();
             String requestId = result.optString("requestId");
             JSONArray data = result.optJSONArray("data");
             assertFalse(requestId.isEmpty());
@@ -239,7 +239,7 @@ public class DbGeoTest {
             assertTrue(data.length() > 0);
 
             // 删除文档
-            result = db.collection("user").doc(id).remove();
+            result = db.collection("geo").doc(id).remove();
             requestId = result.optString("requestId");
             int deleted = result.optInt("deleted");
             assertFalse(requestId.isEmpty());
