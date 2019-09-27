@@ -87,7 +87,8 @@ public class Format {
         return data;
     }
 
-    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException, TcbException {
+    public static JSONObject dataFormat(@NonNull JSONObject data) throws JSONException,
+            TcbException {
         JSONObject cloneData = new JSONObject();
         Iterator iterator = data.keys();
         while (iterator.hasNext()) {

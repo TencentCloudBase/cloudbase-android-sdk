@@ -1,5 +1,7 @@
 package com.tencent.tcb.database.Geos;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.TcbException;
@@ -42,6 +44,16 @@ public class Point {
         result.put("coordinates", coordinates);
 
         return result;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return this.toJSON().toString();
+        } catch (JSONException e) {
+            return "Invalid Geo Data";
+        }
     }
 
     public String toReadableString() {

@@ -1,5 +1,7 @@
 package com.tencent.tcb.utils;
 
+import androidx.annotation.NonNull;
+
 public class TcbException extends Exception{
     private String errorCode = "";
     private String requestId = "";
@@ -25,6 +27,7 @@ public class TcbException extends Exception{
         return this.requestId;
     }
 
+    @NonNull
     public String toString() {
         return "Code: " + errorCode + " " + message;
     }

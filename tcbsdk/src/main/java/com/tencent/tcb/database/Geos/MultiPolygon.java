@@ -47,6 +47,17 @@ public class MultiPolygon {
         return result;
     }
 
+
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return this.toJSON().toString();
+        } catch (JSONException e) {
+            return "Invalid Geo Data";
+        }
+    }
+
     public static MultiPolygon fromJson(JSONArray coordinates) throws TcbException {
         try {
             ArrayList<Polygon> polygons = new ArrayList<>();

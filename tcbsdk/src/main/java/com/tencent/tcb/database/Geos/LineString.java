@@ -43,6 +43,16 @@ public class LineString {
         return result;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return this.toJSON().toString();
+        } catch (JSONException e) {
+            return "Invalid Geo Data";
+        }
+    }
+
     public static LineString fromJson(JSONArray coordinates) throws TcbException {
         try {
             ArrayList<Point> points = new ArrayList<>();

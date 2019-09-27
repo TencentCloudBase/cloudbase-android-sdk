@@ -61,6 +61,17 @@ public class Polygon {
         return result;
     }
 
+
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return this.toJSON().toString();
+        } catch (JSONException e) {
+            return "Invalid Geo Data";
+        }
+    }
+
     public static Polygon fromJson(JSONArray coordinates) throws TcbException {
         try {
             ArrayList<LineString> lines = new ArrayList<>();

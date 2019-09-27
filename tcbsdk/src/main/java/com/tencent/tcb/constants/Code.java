@@ -28,4 +28,7 @@ public class Code {
     public static final String CHECK_LOGIN_FAILED = "CHECK_LOGIN_FAILED";
     // 没有 refreshToken 信息
     public static final String NOT_LOGIN = "NOT_LOGIN";
+
+    // 无效的 GEO 数据
+    public static final String INVALID_GEO_DATA = "INVALID_GEO_DATA";
 }

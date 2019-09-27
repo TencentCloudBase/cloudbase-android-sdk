@@ -1,5 +1,9 @@
 package com.tencent.tcb.database.Geos;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.tencent.tcb.constants.Code;
 import com.tencent.tcb.database.Utils.Validate;
 import com.tencent.tcb.utils.TcbException;
@@ -37,10 +41,20 @@ public class MultiLineString {
         }
 
         JSONObject result = new JSONObject();
-        result.put("type", "LineString");
+        result.put("type", "MultiLineString");
         result.put("coordinates", coordinates);
 
         return result;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return this.toJSON().toString();
+        } catch (JSONException e) {
+            return "Invalid Geo Data";
+        }
     }
 
     public static MultiLineString fromJson(JSONArray coordinates) throws TcbException {
