@@ -14,7 +14,29 @@ CloudBase 提供开发应用所需服务和基础设施。TCB Android SDK 让您
 
 ## 安装
 
-通过 maven 进行安装。
+1. 在您的项目根目录下的 build.gradle 文件中添加 maven 仓库
+
+```
+allprojects {
+  repositories {
+    ...
+    // 添加 maven
+    maven {
+        url "https://dl.bintray.com/tencentcloudbase/maven"
+    }
+  }
+}
+```
+
+2. 在应用的根目录下的 build.gradle 中添加依赖
+
+```
+dependencies {
+  ...
+  // 增加这行
+  implementation 'com.tencent.tcb:cloudbase-android-sdk:1.0.0'
+}
+```
 
 ## 快速上手
 
