@@ -14,13 +14,25 @@ CloudBase 提供开发应用所需服务和基础设施。TCB Android SDK 让您
 
 ## 安装
 
-1. 在您的项目根目录下的 build.gradle 文件中添加 maven 仓库
+1. 在您的项目根目录下的 build.gradle 文件中添加 jcenter（推荐） 或指定 maven 仓库
 
 ```
 allprojects {
   repositories {
     ...
-    // 添加 maven
+    // 使用 jcenter
+    jcenter()
+  }
+}
+```
+
+或
+
+```
+allprojects {
+  repositories {
+    ...
+    // 指定 maven
     maven {
         url "https://dl.bintray.com/tencentcloudbase/maven"
     }
